@@ -317,6 +317,7 @@
   .modal-overlay {
     position: fixed;
     inset: 0;
+    z-index: 20;
     background: rgba(20, 20, 15, 0.45);
     display: flex;
     align-items: flex-start;
@@ -685,7 +686,10 @@ function AuthScreen({ onAuthed }) {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { data: { nombre: nombreLimpio } },
+          options: {
+            data: { nombre: nombreLimpio },
+            emailRedirectTo: window.location.origin + window.location.pathname,
+          },
         });
         if (error) throw error;
         setInfo("Cuenta creada. Revisa tu email para confirmarla y después inicia sesión.");

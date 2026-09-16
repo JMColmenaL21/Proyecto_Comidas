@@ -22,7 +22,7 @@ App publicada en GitHub Pages: https://jmcolmenal21.github.io/Proyecto_Comidas/ 
 
 ## Pendientes conocidos (no bloquean, arreglar más adelante)
 - Los emails de confirmación pueden caer en spam (SMTP propio sin dominio verificado, reputación de envío baja).
-- Redirección tras confirmar email: pendiente de actualizar Site URL/Redirect URLs en Supabase a la URL de GitHub Pages (antes apuntaba a `localhost:3000`) — instrucciones dadas, pendiente de que el usuario lo aplique.
+- Redirección tras confirmar email: el código ya manda `emailRedirectTo` con la URL real de la app (antes no se especificaba y caía en el valor por defecto de Supabase, `localhost:3000`). **Falta un paso manual que no se puede hacer por API**: añadir esa URL en Supabase → Authentication → URL Configuration → Site URL y Redirect URLs, si no, Supabase la ignora y sigue usando el valor por defecto.
 
 ## Antes de "lanzarlo" (último paso, pendiente hasta que el usuario lo pida)
 - Borrar todos los usuarios/perfiles/platos de prueba: `delete from auth.users;` en el SQL Editor de Supabase (cascada a todo lo demás). Decisión explícita del usuario: no ejecutar todavía.
