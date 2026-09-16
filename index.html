@@ -1,0 +1,2150 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Comidas</title>
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="icons/icon-192.png" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<meta name="theme-color" content="#3a7d5c" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Comidas" />
+<style>
+  :root {
+    color-scheme: light dark;
+    --accent: #3a7d5c;
+    --accent-dark: #2c6047;
+    --accent-contrast: #ffffff;
+    --accent-soft: #e7f2ec;
+    --bg: #f6f5f1;
+    --surface: #ffffff;
+    --border: #e6e2d8;
+    --text: #232620;
+    --text-muted: #6d7168;
+    --danger: #b3413a;
+    --danger-soft: #fbeceb;
+    --warn-bg: #fdf3d9;
+    --warn-border: #f0dda0;
+    --warn-text: #7a5c14;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 18px;
+    --shadow-sm: 0 1px 2px rgba(30, 30, 20, 0.05);
+    --shadow-md: 0 6px 20px rgba(30, 30, 20, 0.08);
+  }
+  * { box-sizing: border-box; }
+  html { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    padding: 1.1rem 1.5rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 {
+    margin: 0;
+    font-size: 1.3rem;
+    letter-spacing: -0.01em;
+  }
+  nav {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.5rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  nav button {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: none;
+    background: none;
+    padding: 0.75rem 0.9rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  nav button:hover { background: var(--bg); }
+  nav button svg { width: 18px; height: 18px; flex-shrink: 0; }
+  nav button.active {
+    color: var(--accent-dark);
+    background: var(--accent-soft);
+    font-weight: 600;
+  }
+  main {
+    padding: 1.5rem;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .banner {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    color: var(--warn-text);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+  .empty {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 2.5rem 1rem;
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-md);
+  }
+  .auth-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: var(--bg);
+  }
+  .auth-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: 2.25rem;
+    width: 100%;
+    max-width: 360px;
+  }
+  .auth-card h1 {
+    margin: 0 0 1.5rem;
+    font-size: 1.4rem;
+    text-align: center;
+    color: var(--accent-dark);
+  }
+  .auth-card label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 0.3rem;
+  }
+  .auth-card input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.65rem 0.8rem;
+    margin-bottom: 1.1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    background: var(--bg);
+  }
+  .auth-card input:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    background: var(--surface);
+  }
+  .auth-card button.primary {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--accent);
+    color: var(--accent-contrast);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .auth-card button.primary:hover { background: var(--accent-dark); }
+  .auth-card button.primary:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+  .auth-switch {
+    text-align: center;
+    margin-top: 1.25rem;
+    font-size: 0.85rem;
+  }
+  .auth-switch button {
+    background: none;
+    border: none;
+    color: var(--accent-dark);
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 0;
+  }
+  .auth-error {
+    background: var(--danger-soft);
+    border: 1px solid #eec5c2;
+    color: var(--danger);
+    border-radius: var(--radius-sm);
+    padding: 0.65rem 0.8rem;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+  }
+  .auth-info {
+    background: var(--accent-soft);
+    border: 1px solid #c8e2d3;
+    color: var(--accent-dark);
+    border-radius: var(--radius-sm);
+    padding: 0.65rem 0.8rem;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+  }
+  header .user-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  header .user-bar span {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  header .user-bar button {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+    padding: 0.35rem 0.7rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: var(--text);
+  }
+  header .user-bar button:hover { background: var(--bg); }
+  .subtabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .subtabs button {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 999px;
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.15s ease;
+  }
+  .subtabs button.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-contrast);
+    font-weight: 600;
+  }
+  .btn {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 0.9rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    color: var(--text);
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .btn:hover { background: var(--bg); }
+  .btn-primary {
+    border: none;
+    background: var(--accent);
+    color: var(--accent-contrast);
+    font-weight: 600;
+  }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-danger {
+    border-color: #eec5c2;
+    color: var(--danger);
+  }
+  .btn-danger:hover { background: var(--danger-soft); }
+  .btn:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 1rem;
+  }
+  .plato-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    padding: 1.1rem;
+    transition: box-shadow 0.15s ease;
+  }
+  .plato-card:hover { box-shadow: var(--shadow-md); }
+  .plato-card h3 {
+    margin: 0 0 0.25rem;
+    font-size: 1rem;
+  }
+  .plato-card .autor {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+  .tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--accent-dark);
+    background: var(--accent-soft);
+    border-radius: 999px;
+    padding: 0.15rem 0.55rem;
+    margin-bottom: 0.5rem;
+  }
+  .plato-card .macros {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.85rem;
+    line-height: 1.4;
+  }
+  .plato-card .actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 20, 15, 0.45);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 1.5rem;
+    overflow-y: auto;
+  }
+  .modal-card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: 1.75rem;
+    width: 100%;
+    max-width: 480px;
+  }
+  .modal-card h2 {
+    margin: 0 0 1rem;
+    font-size: 1.15rem;
+    color: var(--accent-dark);
+  }
+  .field-row {
+    display: flex;
+    gap: 0.75rem;
+  }
+  .field-row > div {
+    flex: 1;
+  }
+  .plato-form label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0.85rem 0 0.3rem;
+  }
+  .plato-form input,
+  .plato-form select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    background: var(--bg);
+  }
+  .plato-form input:focus,
+  .plato-form select:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    background: var(--surface);
+  }
+  .ingredient-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  .ingredient-row input {
+    flex: 1;
+  }
+  .ingredient-row button {
+    border: none;
+    background: none;
+    color: var(--danger);
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0 0.4rem;
+    line-height: 1;
+  }
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+  }
+  .list-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    padding: 0.8rem 1.1rem;
+    margin-bottom: 0.5rem;
+    gap: 1rem;
+  }
+  .list-row .info {
+    font-size: 0.9rem;
+  }
+  .list-row .info .cantidad {
+    color: var(--text-muted);
+  }
+  .list-row .actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+  .dia-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .dia-row:last-of-type { border-bottom: none; }
+  .dia-row .dia-label {
+    width: 100%;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent-dark);
+  }
+  .dia-slot {
+    flex: 1;
+    min-width: 140px;
+  }
+  .dia-slot label {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-bottom: 0.2rem;
+  }
+  .dia-slot select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.5rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    background: var(--bg);
+  }
+  .list-row.comprado .info {
+    text-decoration: line-through;
+    opacity: 0.5;
+  }
+  .list-row .checkbox {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    accent-color: var(--accent);
+  }
+  .list-row .cantidad-input {
+    width: 70px;
+    padding: 0.3rem 0.4rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.85rem;
+  }
+  .generar-bar {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+  .generar-bar select {
+    flex: 1;
+    min-width: 160px;
+    padding: 0.55rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    background: var(--surface);
+  }
+  .objetivos-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    padding: 1.1rem 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  .objetivos-card h3 {
+    margin: 0 0 0.25rem;
+    font-size: 0.95rem;
+  }
+  .objetivos-card .hint {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 0.85rem;
+  }
+  .objetivos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 0.6rem;
+    margin-bottom: 0.85rem;
+  }
+  .objetivos-grid label {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-bottom: 0.2rem;
+  }
+  .objetivos-grid input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.5rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    background: var(--bg);
+  }
+  .generador-aleatorio {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+  }
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  .view-toggle {
+    display: flex;
+    gap: 0.25rem;
+  }
+  .view-toggle button {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: var(--text-muted);
+  }
+  .view-toggle button.active {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent-dark);
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.26.4/babel.min.js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect } = React;
+
+const supabaseConfig = window.SUPABASE_CONFIG;
+const supabase = supabaseConfig
+  ? window.supabase.createClient(supabaseConfig.url, supabaseConfig.anonKey)
+  : null;
+
+function IconPlatos() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+      <circle cx="12" cy="12" r="8.5" />
+      <circle cx="12" cy="12" r="3.2" />
+    </svg>
+  );
+}
+function IconDespensa() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 7l2-3.5h14L21 7" />
+      <rect x="3" y="7" width="18" height="13" rx="1.5" />
+      <path d="M9 11.5h6" />
+    </svg>
+  );
+}
+function IconMenu() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="5" width="18" height="15" rx="2" />
+      <path d="M3 9.5h18" />
+      <path d="M8 3v4M16 3v4" />
+    </svg>
+  );
+}
+function IconCompra() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6.5 8h11l-1 12h-9l-1-12z" />
+      <path d="M9 8V6a3 3 0 016 0v2" />
+    </svg>
+  );
+}
+
+const SECTIONS = [
+  { id: "platos", label: "Platos", Icon: IconPlatos },
+  { id: "despensa", label: "Despensa", Icon: IconDespensa },
+  { id: "menu", label: "Menú semanal", Icon: IconMenu },
+  { id: "compra", label: "Lista de la compra", Icon: IconCompra },
+];
+
+function seccionGuardada() {
+  try {
+    const guardada = localStorage.getItem("comidas_seccion");
+    return SECTIONS.some((s) => s.id === guardada) ? guardada : "platos";
+  } catch {
+    return "platos";
+  }
+}
+
+function SupabaseBanner() {
+  if (supabase) return null;
+  return (
+    <div className="banner">
+      Supabase no está configurado todavía. Crea <code>config.js</code> a
+      partir de <code>config.example.js</code> con tus credenciales para
+      activar el guardado de datos.
+    </div>
+  );
+}
+
+function EmptyState({ text }) {
+  return <p className="empty">{text}</p>;
+}
+
+function AuthScreen({ onAuthed }) {
+  const [mode, setMode] = useState("login"); // "login" | "register"
+  const [nombre, setNombre] = useState("");
+  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState(""); // login: usuario o email
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
+
+  function resetFields() {
+    setNombre("");
+    setEmail("");
+    setIdentifier("");
+    setPassword("");
+    setError("");
+    setInfo("");
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError("");
+    setInfo("");
+    setLoading(true);
+    try {
+      if (mode === "login") {
+        let loginEmail = identifier.trim();
+        if (!loginEmail.includes("@")) {
+          const { data: resolvedEmail } = await supabase.rpc("email_for_username", {
+            p_nombre: loginEmail,
+          });
+          if (!resolvedEmail) {
+            setError("Credenciales inválidas.");
+            return;
+          }
+          loginEmail = resolvedEmail;
+        }
+        const { error } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
+        if (error) throw error;
+        onAuthed();
+      } else {
+        const nombreLimpio = nombre.trim();
+        const { data: enUso } = await supabase.rpc("nombre_en_uso", { p_nombre: nombreLimpio });
+        if (enUso) {
+          setError("Ese nombre de usuario ya está en uso.");
+          return;
+        }
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { data: { nombre: nombreLimpio } },
+        });
+        if (error) throw error;
+        setInfo("Cuenta creada. Revisa tu email para confirmarla y después inicia sesión.");
+        setMode("login");
+      }
+    } catch (err) {
+      setError(err.message || "Ha ocurrido un error.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="auth-screen">
+      <div className="auth-card">
+        <h1>Comidas</h1>
+        {error && <div className="auth-error">{error}</div>}
+        {info && <div className="auth-info">{info}</div>}
+        <form onSubmit={handleSubmit}>
+          {mode === "register" ? (
+            <React.Fragment>
+              <label htmlFor="nombre">Nombre de usuario</label>
+              <input
+                id="nombre"
+                type="text"
+                required
+                minLength={2}
+                maxLength={30}
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+              />
+              <label htmlFor="email">Email</label>
+              <input
+                id="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </React.Fragment>
+          ) : (
+            <React.Fragment>
+              <label htmlFor="identifier">Usuario o email</label>
+              <input
+                id="identifier"
+                type="text"
+                required
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+              />
+            </React.Fragment>
+          )}
+          <label htmlFor="password">Contraseña</label>
+          <input
+            id="password"
+            type="password"
+            required
+            minLength={6}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button className="primary" type="submit" disabled={loading}>
+            {loading ? "Cargando…" : mode === "login" ? "Entrar" : "Crear cuenta"}
+          </button>
+        </form>
+        <div className="auth-switch">
+          {mode === "login" ? (
+            <button onClick={() => { setMode("register"); resetFields(); }}>
+              ¿No tienes cuenta? Regístrate
+            </button>
+          ) : (
+            <button onClick={() => { setMode("login"); resetFields(); }}>
+              ¿Ya tienes cuenta? Inicia sesión
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProfileGate({ onDone }) {
+  const [nombre, setNombre] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const userId = sessionData.session.user.id;
+      const { data, error } = await supabase
+        .from("perfiles")
+        .insert({ id: userId, nombre: nombre.trim() })
+        .select()
+        .single();
+      if (error) {
+        if (error.code === "23505") {
+          setError("Ese nombre ya está en uso, prueba otro.");
+        } else {
+          setError(error.message);
+        }
+        return;
+      }
+      onDone(data);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="auth-screen">
+      <div className="auth-card">
+        <h1>¿Cómo te llamas?</h1>
+        {error && <div className="auth-error">{error}</div>}
+        <form onSubmit={handleSubmit}>
+          <label htmlFor="nombre">Nombre (se verá en tus platos)</label>
+          <input
+            id="nombre"
+            type="text"
+            required
+            minLength={2}
+            maxLength={30}
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+          />
+          <button className="primary" type="submit" disabled={loading}>
+            {loading ? "Guardando…" : "Continuar"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function emptyIngrediente() {
+  return { nombre: "", cantidad: "", unidad: "" };
+}
+
+function PlatoForm({ plato, onClose, onSaved }) {
+  const [nombre, setNombre] = useState(plato?.nombre || "");
+  const [caloriasRacion, setCaloriasRacion] = useState(plato?.calorias_racion ?? "");
+  const [proteinas, setProteinas] = useState(plato?.proteinas_g ?? "");
+  const [carbohidratos, setCarbohidratos] = useState(plato?.carbohidratos_g ?? "");
+  const [grasas, setGrasas] = useState(plato?.grasas_g ?? "");
+  const [raciones, setRaciones] = useState(plato?.raciones_por_defecto ?? 1);
+  const [tipoComida, setTipoComida] = useState(plato?.tipo_comida || "ambas");
+  const [ingredientes, setIngredientes] = useState(
+    plato?.ingredientes?.length ? plato.ingredientes : [emptyIngrediente()]
+  );
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  function updateIngrediente(index, field, value) {
+    setIngredientes((prev) =>
+      prev.map((ing, i) => (i === index ? { ...ing, [field]: value } : ing))
+    );
+  }
+
+  function removeIngrediente(index) {
+    setIngredientes((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function toNumberOrNull(value) {
+    return value === "" || value === null ? null : Number(value);
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError("");
+    setSaving(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const userId = sessionData.session.user.id;
+      const payload = {
+        nombre: nombre.trim(),
+        calorias_racion: toNumberOrNull(caloriasRacion),
+        proteinas_g: toNumberOrNull(proteinas),
+        carbohidratos_g: toNumberOrNull(carbohidratos),
+        grasas_g: toNumberOrNull(grasas),
+        raciones_por_defecto: Number(raciones) || 1,
+        tipo_comida: tipoComida,
+        ingredientes: ingredientes.filter((ing) => ing.nombre.trim() !== ""),
+      };
+
+      const { error } = plato
+        ? await supabase.from("platos").update(payload).eq("id", plato.id)
+        : await supabase.from("platos").insert({ ...payload, user_id: userId });
+
+      if (error) {
+        setError(error.message);
+        return;
+      }
+      onSaved();
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-card">
+        <h2>{plato ? "Editar plato" : "Nuevo plato"}</h2>
+        {error && <div className="auth-error">{error}</div>}
+        <form className="plato-form" onSubmit={handleSubmit}>
+          <label htmlFor="plato-nombre">Nombre</label>
+          <input
+            id="plato-nombre"
+            type="text"
+            required
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+          />
+
+          <div className="field-row">
+            <div>
+              <label htmlFor="calorias">Calorías/ración</label>
+              <input
+                id="calorias"
+                type="number"
+                min="0"
+                value={caloriasRacion}
+                onChange={(e) => setCaloriasRacion(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="raciones">Raciones por defecto</label>
+              <input
+                id="raciones"
+                type="number"
+                min="1"
+                value={raciones}
+                onChange={(e) => setRaciones(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <label htmlFor="tipo_comida">¿Cuándo se puede comer?</label>
+          <select id="tipo_comida" value={tipoComida} onChange={(e) => setTipoComida(e.target.value)}>
+            <option value="ambas">Comida y cena</option>
+            <option value="comida">Solo comida</option>
+            <option value="cena">Solo cena</option>
+          </select>
+
+          <div className="field-row">
+            <div>
+              <label htmlFor="proteinas">Proteínas (g)</label>
+              <input
+                id="proteinas"
+                type="number"
+                min="0"
+                value={proteinas}
+                onChange={(e) => setProteinas(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="carbohidratos">Carbohidratos (g)</label>
+              <input
+                id="carbohidratos"
+                type="number"
+                min="0"
+                value={carbohidratos}
+                onChange={(e) => setCarbohidratos(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="grasas">Grasas (g)</label>
+              <input
+                id="grasas"
+                type="number"
+                min="0"
+                value={grasas}
+                onChange={(e) => setGrasas(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <label>Ingredientes</label>
+          {ingredientes.map((ing, i) => (
+            <div className="ingredient-row" key={i}>
+              <input
+                type="text"
+                placeholder="Ingrediente"
+                value={ing.nombre}
+                onChange={(e) => updateIngrediente(i, "nombre", e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="Cantidad"
+                value={ing.cantidad}
+                onChange={(e) => updateIngrediente(i, "cantidad", e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="Unidad"
+                value={ing.unidad}
+                onChange={(e) => updateIngrediente(i, "unidad", e.target.value)}
+              />
+              <button type="button" onClick={() => removeIngrediente(i)} aria-label="Quitar ingrediente">
+                ×
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            className="btn"
+            onClick={() => setIngredientes((prev) => [...prev, emptyIngrediente()])}
+          >
+            + Añadir ingrediente
+          </button>
+
+          <div className="modal-actions">
+            <button type="button" className="btn" onClick={onClose}>
+              Cancelar
+            </button>
+            <button type="submit" className="btn btn-primary" disabled={saving}>
+              {saving ? "Guardando…" : "Guardar"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function PlatoCard({ plato, isMine, onEdit, onDelete, onSave, saved }) {
+  return (
+    <div className="plato-card">
+      <h3>{plato.nombre}</h3>
+      <div className="autor">de {plato.perfiles?.nombre || "alguien"}</div>
+      {plato.tipo_comida && plato.tipo_comida !== "ambas" && (
+        <div className="tag">{plato.tipo_comida === "comida" ? "Solo comida" : "Solo cena"}</div>
+      )}
+      <div className="macros">
+        {plato.calorias_racion != null && <div>{plato.calorias_racion} kcal/ración</div>}
+        {plato.raciones_por_defecto && <div>{plato.raciones_por_defecto} ración(es) por defecto</div>}
+      </div>
+      <div className="actions">
+        {isMine ? (
+          <React.Fragment>
+            <button className="btn" onClick={() => onEdit(plato)}>Editar</button>
+            <button className="btn btn-danger" onClick={() => onDelete(plato)}>Eliminar</button>
+          </React.Fragment>
+        ) : (
+          <button className="btn" disabled={saved} onClick={() => onSave(plato)}>
+            {saved ? "Guardado ✓" : "Guardar en mis platos"}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function valorGuardado(clave, porDefecto, valoresValidos) {
+  try {
+    const v = localStorage.getItem(clave);
+    return valoresValidos.includes(v) ? v : porDefecto;
+  } catch {
+    return porDefecto;
+  }
+}
+
+function guardarValor(clave, valor) {
+  try {
+    localStorage.setItem(clave, valor);
+  } catch {}
+}
+
+function PlatoListRow({ plato, isMine, onEdit, onDelete, onSave, saved }) {
+  return (
+    <div className="list-row">
+      <div className="info">
+        <strong>{plato.nombre}</strong>{" "}
+        <span className="cantidad">— de {plato.perfiles?.nombre || "alguien"}</span>
+        {plato.tipo_comida && plato.tipo_comida !== "ambas" && (
+          <span className="tag" style={{ marginLeft: "0.5rem", marginBottom: 0 }}>
+            {plato.tipo_comida === "comida" ? "Solo comida" : "Solo cena"}
+          </span>
+        )}
+      </div>
+      <div className="actions">
+        {isMine ? (
+          <React.Fragment>
+            <button className="btn" onClick={() => onEdit(plato)}>Editar</button>
+            <button className="btn btn-danger" onClick={() => onDelete(plato)}>Eliminar</button>
+          </React.Fragment>
+        ) : (
+          <button className="btn" disabled={saved} onClick={() => onSave(plato)}>
+            {saved ? "Guardado ✓" : "Guardar"}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function PlatosSection({ session }) {
+  const [tab, setTab] = useState(() => valorGuardado("comidas_platos_tab", "mios", ["mios", "descubrir"]));
+  const [vistaMios, setVistaMios] = useState(() => valorGuardado("comidas_vista_platos_mios", "tarjetas", ["tarjetas", "lista"]));
+  const [vistaDescubrir, setVistaDescubrir] = useState(() => valorGuardado("comidas_vista_platos_descubrir", "tarjetas", ["tarjetas", "lista"]));
+  const [platos, setPlatos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [editing, setEditing] = useState(null); // null=cerrado, {}=nuevo, plato=editar
+
+  useEffect(() => guardarValor("comidas_platos_tab", tab), [tab]);
+  useEffect(() => guardarValor("comidas_vista_platos_mios", vistaMios), [vistaMios]);
+  useEffect(() => guardarValor("comidas_vista_platos_descubrir", vistaDescubrir), [vistaDescubrir]);
+
+  const vista = tab === "mios" ? vistaMios : vistaDescubrir;
+  const setVista = tab === "mios" ? setVistaMios : setVistaDescubrir;
+
+  async function load() {
+    setLoading(true);
+    setError("");
+    const { data, error } = await supabase
+      .from("platos")
+      .select("*, perfiles(nombre)")
+      .order("created_at", { ascending: false });
+    if (error) setError(error.message);
+    setPlatos(data || []);
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  const misPlatos = platos.filter((p) => p.user_id === session.user.id);
+  const platosDeOtros = platos.filter((p) => p.user_id !== session.user.id);
+  const origenesGuardados = new Set(misPlatos.map((p) => p.origen_plato_id).filter(Boolean));
+
+  async function handleDelete(plato) {
+    if (!confirm(`¿Eliminar "${plato.nombre}"?`)) return;
+    const { error } = await supabase.from("platos").delete().eq("id", plato.id);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    load();
+  }
+
+  async function handleSaveCopy(plato) {
+    const { error } = await supabase.from("platos").insert({
+      user_id: session.user.id,
+      nombre: plato.nombre,
+      ingredientes: plato.ingredientes,
+      calorias_racion: plato.calorias_racion,
+      proteinas_g: plato.proteinas_g,
+      carbohidratos_g: plato.carbohidratos_g,
+      grasas_g: plato.grasas_g,
+      raciones_por_defecto: plato.raciones_por_defecto,
+      origen_plato_id: plato.id,
+    });
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    load();
+  }
+
+  const visibles = tab === "mios" ? misPlatos : platosDeOtros;
+
+  return (
+    <div>
+      <div className="subtabs">
+        <button className={tab === "mios" ? "active" : ""} onClick={() => setTab("mios")}>
+          Mis platos
+        </button>
+        <button className={tab === "descubrir" ? "active" : ""} onClick={() => setTab("descubrir")}>
+          Descubrir
+        </button>
+      </div>
+
+      {error && <div className="auth-error">{error}</div>}
+
+      <div className="toolbar">
+        <div className="view-toggle">
+          <button className={vista === "tarjetas" ? "active" : ""} onClick={() => setVista("tarjetas")}>
+            Tarjetas
+          </button>
+          <button className={vista === "lista" ? "active" : ""} onClick={() => setVista("lista")}>
+            Lista
+          </button>
+        </div>
+        {tab === "mios" && (
+          <button className="btn btn-primary" onClick={() => setEditing({})}>
+            + Nuevo plato
+          </button>
+        )}
+      </div>
+
+      {loading ? (
+        <EmptyState text="Cargando…" />
+      ) : visibles.length === 0 ? (
+        <EmptyState
+          text={tab === "mios" ? "Todavía no tienes platos. Crea el primero." : "Nadie más tiene platos por ahora."}
+        />
+      ) : vista === "tarjetas" ? (
+        <div className="card-grid">
+          {visibles.map((plato) => (
+            <PlatoCard
+              key={plato.id}
+              plato={plato}
+              isMine={tab === "mios"}
+              onEdit={setEditing}
+              onDelete={handleDelete}
+              onSave={handleSaveCopy}
+              saved={origenesGuardados.has(plato.id)}
+            />
+          ))}
+        </div>
+      ) : (
+        <div>
+          {visibles.map((plato) => (
+            <PlatoListRow
+              key={plato.id}
+              plato={plato}
+              isMine={tab === "mios"}
+              onEdit={setEditing}
+              onDelete={handleDelete}
+              onSave={handleSaveCopy}
+              saved={origenesGuardados.has(plato.id)}
+            />
+          ))}
+        </div>
+      )}
+
+      {editing && (
+        <PlatoForm
+          plato={editing.id ? editing : null}
+          onClose={() => setEditing(null)}
+          onSaved={() => {
+            setEditing(null);
+            load();
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function DespensaForm({ item, onClose, onSaved }) {
+  const [ingrediente, setIngrediente] = useState(item?.ingrediente || "");
+  const [cantidad, setCantidad] = useState(item?.cantidad ?? "");
+  const [unidad, setUnidad] = useState(item?.unidad || "");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError("");
+    setSaving(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const userId = sessionData.session.user.id;
+      const payload = {
+        ingrediente: ingrediente.trim(),
+        cantidad: Number(cantidad),
+        unidad: unidad.trim(),
+      };
+
+      const { error } = item
+        ? await supabase.from("despensa").update(payload).eq("id", item.id)
+        : await supabase.from("despensa").insert({ ...payload, user_id: userId });
+
+      if (error) {
+        if (error.code === "23505") {
+          setError("Ya tienes ese ingrediente con esa unidad en la despensa. Edítalo en la lista en vez de añadirlo de nuevo.");
+        } else {
+          setError(error.message);
+        }
+        return;
+      }
+      onSaved();
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-card">
+        <h2>{item ? "Editar ingrediente" : "Nuevo ingrediente"}</h2>
+        {error && <div className="auth-error">{error}</div>}
+        <form className="plato-form" onSubmit={handleSubmit}>
+          <label htmlFor="ingrediente">Ingrediente</label>
+          <input
+            id="ingrediente"
+            type="text"
+            required
+            value={ingrediente}
+            onChange={(e) => setIngrediente(e.target.value)}
+          />
+          <div className="field-row">
+            <div>
+              <label htmlFor="cantidad">Cantidad</label>
+              <input
+                id="cantidad"
+                type="number"
+                min="0"
+                step="any"
+                required
+                value={cantidad}
+                onChange={(e) => setCantidad(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="unidad">Unidad</label>
+              <input
+                id="unidad"
+                type="text"
+                required
+                placeholder="g, ud, l…"
+                value={unidad}
+                onChange={(e) => setUnidad(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="modal-actions">
+            <button type="button" className="btn" onClick={onClose}>
+              Cancelar
+            </button>
+            <button type="submit" className="btn btn-primary" disabled={saving}>
+              {saving ? "Guardando…" : "Guardar"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function DespensaSection() {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [editing, setEditing] = useState(null); // null=cerrado, {}=nuevo, item=editar
+
+  async function load() {
+    setLoading(true);
+    setError("");
+    const { data, error } = await supabase.from("despensa").select("*").order("ingrediente");
+    if (error) setError(error.message);
+    setItems(data || []);
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  async function handleDelete(item) {
+    if (!confirm(`¿Eliminar "${item.ingrediente}" de la despensa?`)) return;
+    const { error } = await supabase.from("despensa").delete().eq("id", item.id);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    load();
+  }
+
+  return (
+    <div>
+      {error && <div className="auth-error">{error}</div>}
+
+      <div className="toolbar" style={{ justifyContent: "flex-end" }}>
+        <button className="btn btn-primary" onClick={() => setEditing({})}>
+          + Añadir ingrediente
+        </button>
+      </div>
+
+      {loading ? (
+        <EmptyState text="Cargando…" />
+      ) : items.length === 0 ? (
+        <EmptyState text="Todavía no tienes ingredientes en la despensa." />
+      ) : (
+        <div>
+          {items.map((item) => (
+            <div className="list-row" key={item.id}>
+              <div className="info">
+                <strong>{item.ingrediente}</strong>{" "}
+                <span className="cantidad">
+                  — {item.cantidad} {item.unidad}
+                </span>
+              </div>
+              <div className="actions">
+                <button className="btn" onClick={() => setEditing(item)}>Editar</button>
+                <button className="btn btn-danger" onClick={() => handleDelete(item)}>Eliminar</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {editing && (
+        <DespensaForm
+          item={editing.id ? editing : null}
+          onClose={() => setEditing(null)}
+          onSaved={() => {
+            setEditing(null);
+            load();
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+const DIAS_SEMANA = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"];
+
+function proximoLunes() {
+  const hoy = new Date();
+  const diaSemana = hoy.getDay(); // 0=domingo, 1=lunes, ...
+  const offset = (8 - diaSemana) % 7;
+  const resultado = new Date(hoy);
+  resultado.setDate(hoy.getDate() + offset);
+  return resultado.toISOString().slice(0, 10);
+}
+
+function tieneAlgunObjetivo(profile) {
+  return ["objetivo_calorias", "objetivo_proteinas_g", "objetivo_carbohidratos_g", "objetivo_grasas_g"].some(
+    (campo) => profile?.[campo] != null && profile[campo] > 0
+  );
+}
+
+function elegirAleatorio(lista) {
+  return lista[Math.floor(Math.random() * lista.length)];
+}
+
+function totalesDia(platoComida, platoCena) {
+  const suma = (campo) => (Number(platoComida?.[campo]) || 0) + (Number(platoCena?.[campo]) || 0);
+  return {
+    objetivo_calorias: suma("calorias_racion"),
+    objetivo_proteinas_g: suma("proteinas_g"),
+    objetivo_carbohidratos_g: suma("carbohidratos_g"),
+    objetivo_grasas_g: suma("grasas_g"),
+  };
+}
+
+function distanciaAlObjetivo(totales, profile) {
+  const campos = ["objetivo_calorias", "objetivo_proteinas_g", "objetivo_carbohidratos_g", "objetivo_grasas_g"];
+  let distancia = 0;
+  for (const campo of campos) {
+    const objetivo = profile?.[campo];
+    if (objetivo != null && objetivo > 0) {
+      distancia += Math.abs(totales[campo] - objetivo) / objetivo;
+    }
+  }
+  return distancia;
+}
+
+function generarMenuAleatorio(platosComida, platosCena, profile) {
+  const conObjetivo = tieneAlgunObjetivo(profile);
+  const poolComida = conObjetivo
+    ? (platosComida.filter((p) => p.calorias_racion != null).length
+        ? platosComida.filter((p) => p.calorias_racion != null)
+        : platosComida)
+    : platosComida;
+  const poolCena = conObjetivo
+    ? (platosCena.filter((p) => p.calorias_racion != null).length
+        ? platosCena.filter((p) => p.calorias_racion != null)
+        : platosCena)
+    : platosCena;
+
+  const dias = {};
+  for (const dia of DIAS_SEMANA) {
+    if (poolComida.length === 0 && poolCena.length === 0) continue;
+    const entrada = {};
+
+    if (!conObjetivo) {
+      if (poolComida.length) entrada.comida = elegirAleatorio(poolComida).id;
+      if (poolCena.length) entrada.cena = elegirAleatorio(poolCena).id;
+    } else {
+      let mejor = null;
+      let mejorDistancia = Infinity;
+      for (let intento = 0; intento < 25; intento++) {
+        const pc = poolComida.length ? elegirAleatorio(poolComida) : null;
+        const pz = poolCena.length ? elegirAleatorio(poolCena) : null;
+        if (!pc && !pz) break;
+        const distancia = distanciaAlObjetivo(totalesDia(pc, pz), profile);
+        if (distancia < mejorDistancia) {
+          mejorDistancia = distancia;
+          mejor = { pc, pz };
+        }
+      }
+      if (mejor?.pc) entrada.comida = mejor.pc.id;
+      if (mejor?.pz) entrada.cena = mejor.pz.id;
+    }
+
+    if (Object.keys(entrada).length) dias[dia] = entrada;
+  }
+  return dias;
+}
+
+function ObjetivosDiarios({ profile, onProfileUpdated }) {
+  const [calorias, setCalorias] = useState(profile?.objetivo_calorias ?? "");
+  const [proteinas, setProteinas] = useState(profile?.objetivo_proteinas_g ?? "");
+  const [carbohidratos, setCarbohidratos] = useState(profile?.objetivo_carbohidratos_g ?? "");
+  const [grasas, setGrasas] = useState(profile?.objetivo_grasas_g ?? "");
+  const [saving, setSaving] = useState(false);
+
+  function aNumeroONull(valor) {
+    return valor === "" || valor === null ? null : Number(valor);
+  }
+
+  async function handleGuardar() {
+    setSaving(true);
+    const payload = {
+      objetivo_calorias: aNumeroONull(calorias),
+      objetivo_proteinas_g: aNumeroONull(proteinas),
+      objetivo_carbohidratos_g: aNumeroONull(carbohidratos),
+      objetivo_grasas_g: aNumeroONull(grasas),
+    };
+    const { data, error } = await supabase.from("perfiles").update(payload).eq("id", profile.id).select().single();
+    if (!error) onProfileUpdated(data);
+    setSaving(false);
+  }
+
+  return (
+    <div className="objetivos-card">
+      <h3>Mis objetivos diarios</h3>
+      <div className="hint">
+        Opcional. Si los rellenas, "Generar aleatorio" intentará ajustarse a ellos. Si los dejas vacíos, elegirá platos al azar sin más.
+      </div>
+      <div className="objetivos-grid">
+        <div>
+          <label htmlFor="obj-calorias">Calorías</label>
+          <input id="obj-calorias" type="number" min="0" value={calorias} onChange={(e) => setCalorias(e.target.value)} />
+        </div>
+        <div>
+          <label htmlFor="obj-proteinas">Proteínas (g)</label>
+          <input id="obj-proteinas" type="number" min="0" value={proteinas} onChange={(e) => setProteinas(e.target.value)} />
+        </div>
+        <div>
+          <label htmlFor="obj-carbohidratos">Carbohidratos (g)</label>
+          <input id="obj-carbohidratos" type="number" min="0" value={carbohidratos} onChange={(e) => setCarbohidratos(e.target.value)} />
+        </div>
+        <div>
+          <label htmlFor="obj-grasas">Grasas (g)</label>
+          <input id="obj-grasas" type="number" min="0" value={grasas} onChange={(e) => setGrasas(e.target.value)} />
+        </div>
+      </div>
+      <button className="btn" onClick={handleGuardar} disabled={saving}>
+        {saving ? "Guardando…" : "Guardar objetivos"}
+      </button>
+    </div>
+  );
+}
+
+function MenuEditor({ menu, misPlatos, profile, onClose, onSaved }) {
+  const [fechaInicio, setFechaInicio] = useState(menu?.fecha_inicio || proximoLunes());
+  const [comensales, setComensales] = useState(menu?.comensales ?? 1);
+  const [dias, setDias] = useState(menu?.dias || {});
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const platosComida = misPlatos.filter((p) => p.tipo_comida !== "cena");
+  const platosCena = misPlatos.filter((p) => p.tipo_comida !== "comida");
+
+  function opcionesPara(pool, valorActual) {
+    if (valorActual && !pool.some((p) => p.id === valorActual)) {
+      const extra = misPlatos.find((p) => p.id === valorActual);
+      if (extra) return [extra, ...pool];
+    }
+    return pool;
+  }
+
+  function setSlot(dia, tipo, platoId) {
+    setDias((prev) => {
+      const diaActual = { ...(prev[dia] || {}) };
+      if (platoId) {
+        diaActual[tipo] = platoId;
+      } else {
+        delete diaActual[tipo];
+      }
+      const next = { ...prev };
+      if (Object.keys(diaActual).length) {
+        next[dia] = diaActual;
+      } else {
+        delete next[dia];
+      }
+      return next;
+    });
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError("");
+    setSaving(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const userId = sessionData.session.user.id;
+      const payload = { fecha_inicio: fechaInicio, comensales: Number(comensales) || 1, dias };
+
+      const { error } = menu
+        ? await supabase.from("menu_semanal").update(payload).eq("id", menu.id)
+        : await supabase.from("menu_semanal").insert({ ...payload, user_id: userId });
+
+      if (error) {
+        setError(error.message);
+        return;
+      }
+      onSaved();
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-card" style={{ maxWidth: 560 }}>
+        <h2>{menu ? "Editar menú" : "Nuevo menú semanal"}</h2>
+        {error && <div className="auth-error">{error}</div>}
+        {misPlatos.length === 0 && (
+          <div className="auth-info">
+            Todavía no tienes platos propios. Crea alguno (o guarda uno del feed en "Descubrir") antes de montar el menú.
+          </div>
+        )}
+        {misPlatos.length > 0 && (
+          <div className="generador-aleatorio">
+            <button
+              type="button"
+              className="btn"
+              onClick={() => setDias(generarMenuAleatorio(platosComida, platosCena, profile))}
+            >
+              Generar aleatorio
+            </button>
+          </div>
+        )}
+        <form className="plato-form" onSubmit={handleSubmit}>
+          <div className="field-row">
+            <div>
+              <label htmlFor="fecha_inicio">Semana del</label>
+              <input
+                id="fecha_inicio"
+                type="date"
+                required
+                value={fechaInicio}
+                onChange={(e) => setFechaInicio(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="comensales">Comensales</label>
+              <input
+                id="comensales"
+                type="number"
+                min="1"
+                required
+                value={comensales}
+                onChange={(e) => setComensales(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {DIAS_SEMANA.map((dia) => (
+            <div className="dia-row" key={dia}>
+              <div className="dia-label">{dia.charAt(0).toUpperCase() + dia.slice(1)}</div>
+              <div className="dia-slot">
+                <label>Comida</label>
+                <select
+                  value={dias[dia]?.comida || ""}
+                  onChange={(e) => setSlot(dia, "comida", e.target.value)}
+                >
+                  <option value="">— Sin elegir —</option>
+                  {opcionesPara(platosComida, dias[dia]?.comida).map((p) => (
+                    <option key={p.id} value={p.id}>{p.nombre}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="dia-slot">
+                <label>Cena</label>
+                <select
+                  value={dias[dia]?.cena || ""}
+                  onChange={(e) => setSlot(dia, "cena", e.target.value)}
+                >
+                  <option value="">— Sin elegir —</option>
+                  {opcionesPara(platosCena, dias[dia]?.cena).map((p) => (
+                    <option key={p.id} value={p.id}>{p.nombre}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          ))}
+
+          <div className="modal-actions">
+            <button type="button" className="btn" onClick={onClose}>
+              Cancelar
+            </button>
+            <button type="submit" className="btn btn-primary" disabled={saving}>
+              {saving ? "Guardando…" : "Guardar"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function MenuSection({ session, profile, onProfileUpdated }) {
+  const [menus, setMenus] = useState([]);
+  const [misPlatos, setMisPlatos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [editing, setEditing] = useState(null); // null=cerrado, {}=nuevo, menu=editar
+
+  async function load() {
+    setLoading(true);
+    setError("");
+    const [menusRes, platosRes] = await Promise.all([
+      supabase.from("menu_semanal").select("*").order("fecha_inicio", { ascending: false }),
+      supabase
+        .from("platos")
+        .select("id, nombre, tipo_comida, calorias_racion, proteinas_g, carbohidratos_g, grasas_g, raciones_por_defecto")
+        .eq("user_id", session.user.id)
+        .order("nombre"),
+    ]);
+    if (menusRes.error) setError(menusRes.error.message);
+    setMenus(menusRes.data || []);
+    setMisPlatos(platosRes.data || []);
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  function contarComidasElegidas(menu) {
+    return Object.values(menu.dias || {}).reduce((total, dia) => total + Object.keys(dia).length, 0);
+  }
+
+  async function handleDelete(menu) {
+    if (!confirm(`¿Eliminar el menú de la semana del ${menu.fecha_inicio}?`)) return;
+    const { error } = await supabase.from("menu_semanal").delete().eq("id", menu.id);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    load();
+  }
+
+  return (
+    <div>
+      {error && <div className="auth-error">{error}</div>}
+
+      {profile && <ObjetivosDiarios profile={profile} onProfileUpdated={onProfileUpdated} />}
+
+      <div className="toolbar" style={{ justifyContent: "flex-end" }}>
+        <button className="btn btn-primary" onClick={() => setEditing({})}>
+          + Nuevo menú
+        </button>
+      </div>
+
+      {loading ? (
+        <EmptyState text="Cargando…" />
+      ) : menus.length === 0 ? (
+        <EmptyState text="Todavía no tienes ningún menú semanal. Crea el primero." />
+      ) : (
+        <div>
+          {menus.map((menu) => (
+            <div className="list-row" key={menu.id}>
+              <div className="info">
+                <strong>Semana del {menu.fecha_inicio}</strong>{" "}
+                <span className="cantidad">
+                  — {menu.comensales} comensal(es), {contarComidasElegidas(menu)} comida(s) elegidas
+                </span>
+              </div>
+              <div className="actions">
+                <button className="btn" onClick={() => setEditing(menu)}>Editar</button>
+                <button className="btn btn-danger" onClick={() => handleDelete(menu)}>Eliminar</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {editing && (
+        <MenuEditor
+          menu={editing.id ? editing : null}
+          misPlatos={misPlatos}
+          profile={profile}
+          onClose={() => setEditing(null)}
+          onSaved={() => {
+            setEditing(null);
+            load();
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function ItemManualForm({ onClose, onSaved }) {
+  const [ingrediente, setIngrediente] = useState("");
+  const [cantidad, setCantidad] = useState("");
+  const [unidad, setUnidad] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError("");
+    setSaving(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const userId = sessionData.session.user.id;
+      const { error } = await supabase.from("lista_compra").insert({
+        user_id: userId,
+        ingrediente: ingrediente.trim(),
+        cantidad: Number(cantidad) || 1,
+        unidad: unidad.trim(),
+      });
+      if (error) {
+        setError(error.message);
+        return;
+      }
+      onSaved();
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-card">
+        <h2>Añadir a la lista</h2>
+        {error && <div className="auth-error">{error}</div>}
+        <form className="plato-form" onSubmit={handleSubmit}>
+          <label htmlFor="ingrediente">Ingrediente</label>
+          <input id="ingrediente" type="text" required value={ingrediente} onChange={(e) => setIngrediente(e.target.value)} />
+          <div className="field-row">
+            <div>
+              <label htmlFor="cantidad">Cantidad</label>
+              <input id="cantidad" type="number" min="0" step="any" required value={cantidad} onChange={(e) => setCantidad(e.target.value)} />
+            </div>
+            <div>
+              <label htmlFor="unidad">Unidad</label>
+              <input id="unidad" type="text" placeholder="g, ud, l…" value={unidad} onChange={(e) => setUnidad(e.target.value)} />
+            </div>
+          </div>
+          <div className="modal-actions">
+            <button type="button" className="btn" onClick={onClose}>Cancelar</button>
+            <button type="submit" className="btn btn-primary" disabled={saving}>
+              {saving ? "Guardando…" : "Añadir"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function normalizaClave(nombre, unidad) {
+  return `${(nombre || "").trim().toLowerCase()}|${(unidad || "").trim().toLowerCase()}`;
+}
+
+function CompraSection({ session }) {
+  const [items, setItems] = useState([]);
+  const [menus, setMenus] = useState([]);
+  const [selectedMenuId, setSelectedMenuId] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [generando, setGenerando] = useState(false);
+  const [error, setError] = useState("");
+  const [addingManual, setAddingManual] = useState(false);
+
+  async function load() {
+    setLoading(true);
+    setError("");
+    const [itemsRes, menusRes] = await Promise.all([
+      supabase.from("lista_compra").select("*").order("comprado").order("ingrediente"),
+      supabase.from("menu_semanal").select("*").order("fecha_inicio", { ascending: false }),
+    ]);
+    if (itemsRes.error) setError(itemsRes.error.message);
+    setItems(itemsRes.data || []);
+    setMenus(menusRes.data || []);
+    if (!selectedMenuId && menusRes.data?.length) setSelectedMenuId(menusRes.data[0].id);
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  async function handleGenerar() {
+    if (!selectedMenuId) return;
+    if (!confirm("Esto reemplazará la lista ya generada para este menú (los ítems añadidos a mano no se tocan). ¿Continuar?")) return;
+
+    setGenerando(true);
+    setError("");
+    try {
+      const menu = menus.find((m) => m.id === selectedMenuId);
+      const platoIds = [
+        ...new Set(
+          Object.values(menu.dias || {}).flatMap((dia) => Object.values(dia))
+        ),
+      ];
+      if (platoIds.length === 0) {
+        setError("Ese menú todavía no tiene ninguna comida elegida.");
+        return;
+      }
+
+      const [platosRes, despensaRes] = await Promise.all([
+        supabase.from("platos").select("id, ingredientes, raciones_por_defecto").in("id", platoIds),
+        supabase.from("despensa").select("ingrediente, cantidad, unidad"),
+      ]);
+      if (platosRes.error) throw platosRes.error;
+      if (despensaRes.error) throw despensaRes.error;
+
+      const platosPorId = Object.fromEntries((platosRes.data || []).map((p) => [p.id, p]));
+      const despensaPorClave = Object.fromEntries(
+        (despensaRes.data || []).map((d) => [normalizaClave(d.ingrediente, d.unidad), d.cantidad])
+      );
+
+      const necesarios = new Map(); // clave -> { nombre, unidad, cantidad }
+      for (const dia of Object.values(menu.dias || {})) {
+        for (const platoId of Object.values(dia)) {
+          const plato = platosPorId[platoId];
+          if (!plato) continue;
+          const factor = (menu.comensales || 1) / (plato.raciones_por_defecto || 1);
+          for (const ing of plato.ingredientes || []) {
+            if (!ing.nombre) continue;
+            const clave = normalizaClave(ing.nombre, ing.unidad);
+            const cantidadBase = Number(ing.cantidad);
+            const base = Number.isFinite(cantidadBase) && cantidadBase > 0 ? cantidadBase : 1;
+            const aportado = base * factor;
+            const actual = necesarios.get(clave) || { nombre: ing.nombre, unidad: ing.unidad || "", cantidad: 0 };
+            actual.cantidad += aportado;
+            necesarios.set(clave, actual);
+          }
+        }
+      }
+
+      const nuevosItems = [];
+      for (const [clave, item] of necesarios) {
+        const enDespensa = despensaPorClave[clave] || 0;
+        const restante = Math.round((item.cantidad - enDespensa) * 100) / 100;
+        if (restante > 0) {
+          nuevosItems.push({
+            user_id: session.user.id,
+            menu_id: selectedMenuId,
+            ingrediente: item.nombre,
+            cantidad: restante,
+            unidad: item.unidad,
+            comprado: false,
+          });
+        }
+      }
+
+      const { error: delError } = await supabase.from("lista_compra").delete().eq("menu_id", selectedMenuId);
+      if (delError) throw delError;
+
+      if (nuevosItems.length) {
+        const { error: insError } = await supabase.from("lista_compra").insert(nuevosItems);
+        if (insError) throw insError;
+      }
+
+      load();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setGenerando(false);
+    }
+  }
+
+  async function toggleComprado(item) {
+    await supabase.from("lista_compra").update({ comprado: !item.comprado }).eq("id", item.id);
+    load();
+  }
+
+  async function actualizarCantidad(item, cantidad) {
+    await supabase.from("lista_compra").update({ cantidad: Number(cantidad) || 0 }).eq("id", item.id);
+  }
+
+  async function eliminar(item) {
+    await supabase.from("lista_compra").delete().eq("id", item.id);
+    load();
+  }
+
+  return (
+    <div>
+      {error && <div className="auth-error">{error}</div>}
+
+      <div className="generar-bar">
+        <select value={selectedMenuId} onChange={(e) => setSelectedMenuId(e.target.value)}>
+          {menus.length === 0 && <option value="">No tienes menús todavía</option>}
+          {menus.map((m) => (
+            <option key={m.id} value={m.id}>Semana del {m.fecha_inicio}</option>
+          ))}
+        </select>
+        <button className="btn" onClick={handleGenerar} disabled={!selectedMenuId || generando}>
+          {generando ? "Generando…" : "Generar desde el menú"}
+        </button>
+        <button className="btn btn-primary" onClick={() => setAddingManual(true)}>+ Añadir a mano</button>
+      </div>
+
+      {loading ? (
+        <EmptyState text="Cargando…" />
+      ) : items.length === 0 ? (
+        <EmptyState text="Tu lista de la compra está vacía. Genérala desde un menú o añade algo a mano." />
+      ) : (
+        <div>
+          {items.map((item) => (
+            <div className={`list-row ${item.comprado ? "comprado" : ""}`} key={item.id}>
+              <input
+                type="checkbox"
+                className="checkbox"
+                checked={item.comprado}
+                onChange={() => toggleComprado(item)}
+              />
+              <div className="info" style={{ flex: 1 }}>
+                <strong>{item.ingrediente}</strong>{" "}
+                <span className="cantidad">
+                  —{" "}
+                  <input
+                    type="number"
+                    className="cantidad-input"
+                    defaultValue={item.cantidad}
+                    onBlur={(e) => actualizarCantidad(item, e.target.value)}
+                  />{" "}
+                  {item.unidad}
+                </span>
+              </div>
+              <div className="actions">
+                <button className="btn btn-danger" onClick={() => eliminar(item)}>Eliminar</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {addingManual && (
+        <ItemManualForm
+          onClose={() => setAddingManual(false)}
+          onSaved={() => {
+            setAddingManual(false);
+            load();
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+const SECTION_COMPONENTS = {
+  platos: PlatosSection,
+  despensa: DespensaSection,
+  menu: MenuSection,
+  compra: CompraSection,
+};
+
+function App() {
+  const [section, setSection] = useState(seccionGuardada);
+  const [session, setSession] = useState(undefined); // undefined = cargando, null = sin sesión
+  const [profile, setProfile] = useState(undefined); // undefined = sin comprobar, null = falta crear
+  const Section = SECTION_COMPONENTS[section];
+
+  useEffect(() => {
+    try { localStorage.setItem("comidas_seccion", section); } catch {}
+  }, [section]);
+
+  useEffect(() => {
+    if (!supabase) {
+      setSession(null);
+      return;
+    }
+    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession);
+      setProfile(undefined);
+    });
+    return () => listener.subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!session) return;
+    supabase
+      .from("perfiles")
+      .select("*")
+      .eq("id", session.user.id)
+      .maybeSingle()
+      .then(async ({ data }) => {
+        if (data) {
+          setProfile(data);
+          return;
+        }
+        const nombreSugerido = session.user.user_metadata?.nombre;
+        if (nombreSugerido) {
+          const { data: creado, error } = await supabase
+            .from("perfiles")
+            .insert({ id: session.user.id, nombre: nombreSugerido })
+            .select()
+            .single();
+          if (!error) {
+            setProfile(creado);
+            return;
+          }
+        }
+        setProfile(null); // fallback: alguien más se quedó con ese nombre, o falta el dato
+      });
+  }, [session]);
+
+  if (session === undefined) {
+    return <div className="auth-screen"><p className="empty">Cargando…</p></div>;
+  }
+
+  if (!session && supabase) {
+    return <AuthScreen onAuthed={() => {}} />;
+  }
+
+  if (session && profile === undefined) {
+    return <div className="auth-screen"><p className="empty">Cargando…</p></div>;
+  }
+
+  if (session && profile === null) {
+    return <ProfileGate onDone={(p) => setProfile(p)} />;
+  }
+
+  return (
+    <React.Fragment>
+      <header>
+        <div className="user-bar">
+          <h1>Comidas</h1>
+          {session && (
+            <div>
+              <span>{profile?.nombre || session.user.email}</span>{" "}
+              <button onClick={() => supabase.auth.signOut()}>Salir</button>
+            </div>
+          )}
+        </div>
+      </header>
+      <nav>
+        {SECTIONS.map((s) => (
+          <button
+            key={s.id}
+            className={s.id === section ? "active" : ""}
+            onClick={() => setSection(s.id)}
+          >
+            <s.Icon />
+            {s.label}
+          </button>
+        ))}
+      </nav>
+      <main>
+        <SupabaseBanner />
+        <Section session={session} profile={profile} onProfileUpdated={setProfile} />
+      </main>
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+if ("serviceWorker" in navigator && location.protocol !== "file:") {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
