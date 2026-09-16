@@ -17,9 +17,12 @@ Tener la app navegable localmente (HTML único + React) con las secciones base, 
 
 Prototipo con las 4 secciones funcionales listo para probar de extremo a extremo. Pendiente de prueba manual del usuario en el navegador.
 
+## Despliegue
+App publicada en GitHub Pages: https://jmcolmenal21.github.io/Proyecto_Comidas/ (repo público `JMColmenaL21/Proyecto_Comidas`, deploy automático con cada `git push` a `main`). PWA instalable desde el móvil ("Añadir a pantalla de inicio").
+
 ## Pendientes conocidos (no bloquean, arreglar más adelante)
 - Los emails de confirmación pueden caer en spam (SMTP propio sin dominio verificado, reputación de envío baja).
-- El enlace de confirmación de email redirige a `http://localhost:3000` (no existe, la app es un HTML local sin servidor) → tras confirmar, el usuario ve una página de error del navegador antes de volver a abrir la app manualmente. No rompe la confirmación en sí.
+- Redirección tras confirmar email: pendiente de actualizar Site URL/Redirect URLs en Supabase a la URL de GitHub Pages (antes apuntaba a `localhost:3000`) — instrucciones dadas, pendiente de que el usuario lo aplique.
 
 ## Antes de "lanzarlo" (último paso, pendiente hasta que el usuario lo pida)
 - Borrar todos los usuarios/perfiles/platos de prueba: `delete from auth.users;` en el SQL Editor de Supabase (cascada a todo lo demás). Decisión explícita del usuario: no ejecutar todavía.
