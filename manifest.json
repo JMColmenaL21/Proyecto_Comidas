@@ -1,6 +1,6 @@
 {
-  "name": "Comidas",
-  "short_name": "Comidas",
+  "name": "Foodganizer",
+  "short_name": "Foodganizer",
   "description": "Gestión de comidas, menú semanal y lista de la compra.",
   "start_url": "./index.html",
   "scope": "./",

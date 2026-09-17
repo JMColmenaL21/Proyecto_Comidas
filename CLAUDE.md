@@ -1,6 +1,8 @@
 # Proyecto_Comidas
 
-App personal de gestión de comidas: registro de platos, calorías y balance nutritivo, generación automática de menú semanal según necesidades calóricas (macros) y lista de la compra editable (ajuste de ingredientes/despensa).
+App personal de gestión de comidas: registro de platos, calorías y balance nutritivo, generación automática de menú semanal según necesidades calóricas (macros) y lista de la compra editable (ajuste de ingredientes/despensa). Incluye hogares compartidos (pareja/familia) y batch cooking.
+
+La app se muestra a los usuarios como **"Foodganizer"** (título, PWA, manifest) — "Proyecto_Comidas" es solo el nombre de la carpeta/repo, no se ha renombrado.
 
 - Tier: 2 (app personal)
 - Stack: HTML único + React (CDN) + Supabase

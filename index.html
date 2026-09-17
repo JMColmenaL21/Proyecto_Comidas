@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Comidas</title>
+<title>Foodganizer</title>
 <link rel="manifest" href="manifest.json" />
 <link rel="icon" href="icons/icon-192.png" />
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
@@ -11,7 +11,7 @@
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-<meta name="apple-mobile-web-app-title" content="Comidas" />
+<meta name="apple-mobile-web-app-title" content="Foodganizer" />
 <style>
   :root {
     color-scheme: light dark;
@@ -85,6 +85,24 @@
     color: var(--accent-dark);
     background: var(--accent-soft);
     font-weight: 600;
+  }
+  @media (max-width: 480px) {
+    nav {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.15rem;
+      padding: 0.4rem 0.4rem;
+      overflow-x: visible;
+    }
+    nav button {
+      flex-direction: column;
+      gap: 0.2rem;
+      padding: 0.4rem 0.1rem;
+      font-size: 0.7rem;
+      white-space: normal;
+      text-align: center;
+      line-height: 1.15;
+    }
   }
   main {
     padding: 1.5rem;
@@ -208,10 +226,6 @@
     justify-content: space-between;
     gap: 1rem;
   }
-  header .user-bar span {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-  }
   header .user-bar button {
     border: 1px solid var(--border);
     background: var(--surface);
@@ -250,7 +264,29 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    line-height: 1;
   }
+  .avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+  .avatar-option {
+    border: 1px solid var(--border);
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 0.4rem 0;
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .avatar-option:hover { background: var(--surface); }
+  .avatar-option.selected {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .avatar-option:disabled { opacity: 0.6; cursor: default; }
   .perfil-panel {
     position: absolute;
     top: calc(100% + 0.5rem);
@@ -739,8 +775,8 @@ function IconCompra() {
 const SECTIONS = [
   { id: "platos", label: "Platos", Icon: IconPlatos },
   { id: "despensa", label: "Despensa", Icon: IconDespensa },
-  { id: "menu", label: "Menú semanal", Icon: IconMenu },
-  { id: "compra", label: "Lista de la compra", Icon: IconCompra },
+  { id: "menu", label: "Menú", Icon: IconMenu },
+  { id: "compra", label: "Compra", Icon: IconCompra },
 ];
 
 function seccionGuardada() {
@@ -836,7 +872,7 @@ function AuthScreen({ onAuthed }) {
   return (
     <div className="auth-screen">
       <div className="auth-card">
-        <h1>Comidas</h1>
+        <h1>Foodganizer</h1>
         {error && <div className="auth-error">{error}</div>}
         {info && <div className="auth-info">{info}</div>}
         <form onSubmit={handleSubmit}>
@@ -2769,6 +2805,44 @@ function HogarPanel({ hogar, onHogarUpdated }) {
   );
 }
 
+const AVATAR_OPCIONES = ["🍅", "🥑", "🍕", "🍩", "🥕", "🍓", "🧀", "🍳"];
+
+function AvatarCirculo({ profile, session }) {
+  if (profile?.avatar) {
+    return <span className="perfil-avatar">{profile.avatar}</span>;
+  }
+  const inicial = (profile?.nombre || session.user.email || "?").charAt(0).toUpperCase();
+  return <span className="perfil-avatar">{inicial}</span>;
+}
+
+function AvatarPicker({ profile, onProfileUpdated }) {
+  const [saving, setSaving] = useState(false);
+
+  async function elegir(emoji) {
+    const nuevo = profile.avatar === emoji ? null : emoji; // volver a pulsarlo lo quita
+    setSaving(true);
+    const { data, error } = await supabase.from("perfiles").update({ avatar: nuevo }).eq("id", profile.id).select().single();
+    if (!error) onProfileUpdated(data);
+    setSaving(false);
+  }
+
+  return (
+    <div className="avatar-grid">
+      {AVATAR_OPCIONES.map((emoji) => (
+        <button
+          key={emoji}
+          type="button"
+          className={`avatar-option ${profile?.avatar === emoji ? "selected" : ""}`}
+          onClick={() => elegir(emoji)}
+          disabled={saving}
+        >
+          {emoji}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function PerfilMenu({ session, profile, onProfileUpdated, hogar, onHogarUpdated }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -2781,18 +2855,19 @@ function PerfilMenu({ session, profile, onProfileUpdated, hogar, onHogarUpdated 
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, []);
 
-  const inicial = (profile?.nombre || session.user.email || "?").charAt(0).toUpperCase();
-
   return (
     <div className="perfil-menu" ref={ref}>
       <button className="perfil-trigger" onClick={() => setOpen((v) => !v)}>
-        <span className="perfil-avatar">{inicial}</span>
+        <AvatarCirculo profile={profile} session={session} />
         {profile?.nombre || session.user.email}
       </button>
       {open && (
         <div className="perfil-panel">
           <div className="perfil-nombre">{profile?.nombre}</div>
           <div className="perfil-email">{session.user.email}</div>
+
+          <h4>Avatar</h4>
+          <AvatarPicker profile={profile} onProfileUpdated={onProfileUpdated} />
 
           <ObjetivosDiarios profile={profile} onProfileUpdated={onProfileUpdated} />
 
@@ -2915,7 +2990,7 @@ function App() {
     <React.Fragment>
       <header>
         <div className="user-bar">
-          <h1>Comidas</h1>
+          <h1>Foodganizer</h1>
           {session && (
             <PerfilMenu
               session={session}
