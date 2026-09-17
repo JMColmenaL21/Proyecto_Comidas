@@ -17,6 +17,13 @@ Tener la app navegable localmente (HTML único + React) con las secciones base, 
 
 Prototipo con las 4 secciones funcionales listo para probar de extremo a extremo. Pendiente de prueba manual del usuario en el navegador.
 
+## Hogares compartidos (en curso, por fases — ver `decisions.md` y `backlog.md`)
+- [x] Fase 0a: perfil con desplegable en el header (nombre, email, objetivos diarios movidos aquí, salir)
+- [x] Fase 0b: migración `hogares`/`hogar_miembros`/`hogar_invitaciones`, RLS y funciones (`crear_hogar`, `crear_invitacion_hogar`, `unirse_a_hogar_con_codigo`) — **pendiente ejecutar en Supabase SQL Editor**: `supabase/migration_006_hogares_compartidos.sql`
+- [x] Fase 0c: UI "Mi hogar" en el desplegable (crear/unirse por código/ver miembros/salir) y `hogar_id` en los inserts de despensa, menú y lista de la compra + autor visible en despensa/lista
+- [x] Fase 1: despensa se descuenta al marcar una comida del menú como hecha (checklist por día/turno en Menú semanal). Disparador elegido: marcar manualmente cada comida individual, no toda la semana de golpe ni automático por fecha — ver `decisions.md`. Migración: `supabase/migration_008_comidas_hechas.sql` — **pendiente ejecutar en Supabase SQL Editor**
+- [x] Fase 2: batch cooking compartido — subtab "Platos preparados" en Despensa (CRUD de lotes), `lotes_cocinados` con `hogar_id`, checklist del menú consume primero lotes disponibles (antes que despensa) y la generación de lista de la compra resta la cobertura de lotes antes de calcular ingredientes. Migración: `supabase/migration_009_lotes_cocinados_hogar.sql` — **pendiente ejecutar en Supabase SQL Editor**
+
 ## Despliegue
 App publicada en GitHub Pages: https://jmcolmenal21.github.io/Proyecto_Comidas/ (repo público `JMColmenaL21/Proyecto_Comidas`, deploy automático con cada `git push` a `main`). PWA instalable desde el móvil ("Añadir a pantalla de inicio").
 

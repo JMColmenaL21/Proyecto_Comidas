@@ -10,4 +10,6 @@ Funcionalidades pendientes, sin priorizar por sprint.
 - [ ] Registro diario de comidas (sin sección propia todavía)
 - [ ] Cálculo de balance calórico/macros diario
 - [ ] Generación automática de menú semanal según necesidades calóricas (hoy es selección manual)
-- [ ] Batch cooking (`lotes_cocinados`): no tiene UI todavía; la lista de la compra no descuenta lotes congelados, solo despensa
+- [x] Hogares compartidos (despensa/menú/lista de la compra entre miembros de un hogar)
+- [x] Despensa se descuenta al marcar una comida del menú como hecha (checklist por día/turno; antes solo se leía para la lista de la compra)
+- [x] Batch cooking (`lotes_cocinados`) compartido por hogar, con UI ("Platos preparados" en Despensa), conteo real semana a semana (desaparece al llegar a 0) e integración con menú/lista de la compra

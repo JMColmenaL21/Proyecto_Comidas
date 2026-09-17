@@ -222,6 +222,112 @@
     color: var(--text);
   }
   header .user-bar button:hover { background: var(--bg); }
+  .perfil-menu {
+    position: relative;
+  }
+  .perfil-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 999px;
+    padding: 0.3rem 0.8rem 0.3rem 0.3rem;
+    font-size: 0.85rem;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .perfil-trigger:hover { background: var(--bg); }
+  .perfil-avatar {
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--accent-contrast);
+    font-weight: 600;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .perfil-panel {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    width: 300px;
+    max-width: calc(100vw - 2rem);
+    max-height: calc(100vh - 5rem);
+    overflow-y: auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    padding: 1rem;
+    z-index: 10;
+  }
+  .perfil-panel h4 {
+    margin: 1rem 0 0.4rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--text-muted);
+  }
+  .perfil-panel h4:first-child { margin-top: 0; }
+  .perfil-panel .perfil-nombre {
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  .perfil-panel .perfil-email {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+  .perfil-panel .btn { width: 100%; }
+  .hogar-miembro {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    padding: 0.25rem 0;
+  }
+  .hogar-miembro .rol {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+  .hogar-codigo {
+    font-family: monospace;
+    font-size: 1.1rem;
+    letter-spacing: 0.15em;
+    background: var(--accent-soft);
+    color: var(--accent-dark);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem;
+    text-align: center;
+    margin: 0.5rem 0;
+    user-select: all;
+  }
+  .hogar-form {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 0.6rem;
+  }
+  .hogar-form .btn {
+    width: auto;
+    flex: 0 0 auto;
+  }
+  .hogar-form input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    background: var(--bg);
+  }
+  .autor-item {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
   .subtabs {
     display: flex;
     gap: 0.5rem;
@@ -465,6 +571,31 @@
     border-radius: 6px;
     font-size: 0.85rem;
   }
+  .checklist-comidas {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 0.2rem 1.1rem;
+    margin: -0.2rem 0 0.75rem;
+  }
+  .checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 0;
+    font-size: 0.82rem;
+    cursor: pointer;
+  }
+  .checklist-item.hecho span {
+    color: var(--text-muted);
+    text-decoration: line-through;
+  }
+  .checklist-item .checkbox {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    accent-color: var(--accent);
+  }
   .generar-bar {
     display: flex;
     gap: 0.5rem;
@@ -563,7 +694,7 @@
 <script src="config.js"></script>
 
 <script type="text/babel" data-presets="react">
-const { useState, useEffect } = React;
+const { useState, useEffect, useRef } = React;
 
 const supabaseConfig = window.SUPABASE_CONFIG;
 const supabase = supabaseConfig
@@ -1234,7 +1365,7 @@ function PlatosSection({ session }) {
   );
 }
 
-function DespensaForm({ item, onClose, onSaved }) {
+function DespensaForm({ item, hogar, onClose, onSaved }) {
   const [ingrediente, setIngrediente] = useState(item?.ingrediente || "");
   const [cantidad, setCantidad] = useState(item?.cantidad ?? "");
   const [unidad, setUnidad] = useState(item?.unidad || "");
@@ -1256,7 +1387,7 @@ function DespensaForm({ item, onClose, onSaved }) {
 
       const { error } = item
         ? await supabase.from("despensa").update(payload).eq("id", item.id)
-        : await supabase.from("despensa").insert({ ...payload, user_id: userId });
+        : await supabase.from("despensa").insert({ ...payload, user_id: userId, hogar_id: hogar?.id ?? null });
 
       if (error) {
         if (error.code === "23505") {
@@ -1325,7 +1456,26 @@ function DespensaForm({ item, onClose, onSaved }) {
   );
 }
 
-function DespensaSection() {
+function DespensaSection({ hogar }) {
+  const [tab, setTab] = useState(() => valorGuardado("comidas_despensa_tab", "ingredientes", ["ingredientes", "preparados"]));
+  useEffect(() => guardarValor("comidas_despensa_tab", tab), [tab]);
+
+  return (
+    <div>
+      <div className="subtabs">
+        <button className={tab === "ingredientes" ? "active" : ""} onClick={() => setTab("ingredientes")}>
+          Ingredientes
+        </button>
+        <button className={tab === "preparados" ? "active" : ""} onClick={() => setTab("preparados")}>
+          Platos preparados
+        </button>
+      </div>
+      {tab === "ingredientes" ? <DespensaIngredientes hogar={hogar} /> : <LotesCocinadosSection hogar={hogar} />}
+    </div>
+  );
+}
+
+function DespensaIngredientes({ hogar }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -1377,6 +1527,9 @@ function DespensaSection() {
                 <span className="cantidad">
                   — {item.cantidad} {item.unidad}
                 </span>
+                {hogar && (
+                  <div className="autor-item">de {hogar.nombrePorUserId[item.user_id] || "alguien"}</div>
+                )}
               </div>
               <div className="actions">
                 <button className="btn" onClick={() => setEditing(item)}>Editar</button>
@@ -1390,6 +1543,253 @@ function DespensaSection() {
       {editing && (
         <DespensaForm
           item={editing.id ? editing : null}
+          hogar={hogar}
+          onClose={() => setEditing(null)}
+          onSaved={() => {
+            setEditing(null);
+            load();
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function LoteForm({ lote, hogar, onClose, onSaved }) {
+  const [platos, setPlatos] = useState([]);
+  const [platoId, setPlatoId] = useState(lote?.plato_id || "");
+  const [racionesTotales, setRacionesTotales] = useState(lote?.raciones_totales ?? 1);
+  const [racionesRestantes, setRacionesRestantes] = useState(lote?.raciones_restantes ?? 0);
+  const [congelado, setCongelado] = useState(lote?.congelado ?? false);
+  const [fechaCocinado, setFechaCocinado] = useState(lote?.fecha_cocinado || new Date().toISOString().slice(0, 10));
+  const [fechaCaducidad, setFechaCaducidad] = useState(lote?.fecha_caducidad_estimada || "");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    supabase
+      .from("platos")
+      .select("id, nombre")
+      .order("nombre")
+      .then(({ data }) => setPlatos(data || []));
+  }, []);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError("");
+    setSaving(true);
+    try {
+      let error;
+      if (lote) {
+        ({ error } = await supabase
+          .from("lotes_cocinados")
+          .update({
+            congelado,
+            fecha_caducidad_estimada: fechaCaducidad || null,
+            raciones_restantes: Math.min(Number(racionesRestantes) || 0, lote.raciones_totales),
+          })
+          .eq("id", lote.id));
+      } else {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const userId = sessionData.session.user.id;
+        const totales = Number(racionesTotales) || 1;
+        ({ error } = await supabase.from("lotes_cocinados").insert({
+          plato_id: platoId,
+          raciones_totales: totales,
+          raciones_restantes: totales,
+          congelado,
+          fecha_cocinado: fechaCocinado,
+          fecha_caducidad_estimada: fechaCaducidad || null,
+          user_id: userId,
+          hogar_id: hogar?.id ?? null,
+        }));
+      }
+      if (error) {
+        setError(error.message);
+        return;
+      }
+      onSaved();
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-card">
+        <h2>{lote ? "Editar lote" : "Nuevo lote cocinado"}</h2>
+        {error && <div className="auth-error">{error}</div>}
+        <form className="plato-form" onSubmit={handleSubmit}>
+          {!lote && (
+            <React.Fragment>
+              <label htmlFor="lote-plato">Plato</label>
+              <select id="lote-plato" required value={platoId} onChange={(e) => setPlatoId(e.target.value)}>
+                <option value="">Elige un plato…</option>
+                {platos.map((p) => (
+                  <option key={p.id} value={p.id}>{p.nombre}</option>
+                ))}
+              </select>
+              <div className="field-row">
+                <div>
+                  <label htmlFor="lote-raciones">Raciones cocinadas</label>
+                  <input
+                    id="lote-raciones"
+                    type="number"
+                    min="1"
+                    required
+                    value={racionesTotales}
+                    onChange={(e) => setRacionesTotales(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="lote-fecha">Fecha cocinado</label>
+                  <input
+                    id="lote-fecha"
+                    type="date"
+                    required
+                    value={fechaCocinado}
+                    onChange={(e) => setFechaCocinado(e.target.value)}
+                  />
+                </div>
+              </div>
+            </React.Fragment>
+          )}
+          {lote && (
+            <div>
+              <label htmlFor="lote-restantes">Raciones restantes (de {lote.raciones_totales})</label>
+              <input
+                id="lote-restantes"
+                type="number"
+                min="0"
+                max={lote.raciones_totales}
+                value={racionesRestantes}
+                onChange={(e) => setRacionesRestantes(e.target.value)}
+              />
+            </div>
+          )}
+          <div className="field-row">
+            <div>
+              <label htmlFor="lote-caducidad">Caduca (opcional)</label>
+              <input
+                id="lote-caducidad"
+                type="date"
+                value={fechaCaducidad}
+                onChange={(e) => setFechaCaducidad(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="lote-congelado">Congelado</label>
+              <div style={{ paddingTop: "0.5rem" }}>
+                <input
+                  id="lote-congelado"
+                  type="checkbox"
+                  checked={congelado}
+                  onChange={(e) => setCongelado(e.target.checked)}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="modal-actions">
+            <button type="button" className="btn" onClick={onClose}>Cancelar</button>
+            <button type="submit" className="btn btn-primary" disabled={saving}>
+              {saving ? "Guardando…" : "Guardar"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function LotesCocinadosSection({ hogar }) {
+  const [lotes, setLotes] = useState([]);
+  const [platosPorId, setPlatosPorId] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [editing, setEditing] = useState(null); // null=cerrado, {}=nuevo, lote=editar
+
+  async function load() {
+    setLoading(true);
+    setError("");
+    const { data, error } = await supabase
+      .from("lotes_cocinados")
+      .select("*")
+      .order("fecha_caducidad_estimada", { ascending: true, nullsFirst: false })
+      .order("fecha_cocinado");
+    if (error) setError(error.message);
+    const lotesData = data || [];
+    setLotes(lotesData);
+
+    const idsReferenciados = [...new Set(lotesData.map((l) => l.plato_id))];
+    if (idsReferenciados.length) {
+      const { data: platosData } = await supabase.from("platos").select("id, nombre").in("id", idsReferenciados);
+      setPlatosPorId(Object.fromEntries((platosData || []).map((p) => [p.id, p])));
+    } else {
+      setPlatosPorId({});
+    }
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  async function handleDelete(lote) {
+    const nombre = platosPorId[lote.plato_id]?.nombre || "este lote";
+    if (!confirm(`¿Eliminar el lote de "${nombre}"?`)) return;
+    const { error } = await supabase.from("lotes_cocinados").delete().eq("id", lote.id);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    load();
+  }
+
+  const disponibles = lotes.filter((l) => l.raciones_restantes > 0);
+
+  return (
+    <div>
+      {error && <div className="auth-error">{error}</div>}
+
+      <div className="toolbar" style={{ justifyContent: "flex-end" }}>
+        <button className="btn btn-primary" onClick={() => setEditing({})}>
+          + Nuevo lote
+        </button>
+      </div>
+
+      {loading ? (
+        <EmptyState text="Cargando…" />
+      ) : disponibles.length === 0 ? (
+        <EmptyState text="No hay raciones de platos preparados disponibles." />
+      ) : (
+        <div>
+          {disponibles.map((lote) => (
+            <div className="list-row" key={lote.id}>
+              <div className="info">
+                <strong>{platosPorId[lote.plato_id]?.nombre || "plato eliminado"}</strong>{" "}
+                <span className="cantidad">
+                  — {lote.raciones_restantes} de {lote.raciones_totales} ración(es)
+                  {lote.congelado ? ", congelado" : ""}
+                </span>
+                <div className="autor-item">
+                  cocinado el {lote.fecha_cocinado}
+                  {lote.fecha_caducidad_estimada ? ` · caduca ${lote.fecha_caducidad_estimada}` : ""}
+                  {hogar ? ` · de ${hogar.nombrePorUserId[lote.user_id] || "alguien"}` : ""}
+                </div>
+              </div>
+              <div className="actions">
+                <button className="btn" onClick={() => setEditing(lote)}>Editar</button>
+                <button className="btn btn-danger" onClick={() => handleDelete(lote)}>Eliminar</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {editing && (
+        <LoteForm
+          lote={editing.id ? editing : null}
+          hogar={hogar}
           onClose={() => setEditing(null)}
           onSaved={() => {
             setEditing(null);
@@ -1542,7 +1942,7 @@ function ObjetivosDiarios({ profile, onProfileUpdated }) {
   );
 }
 
-function MenuEditor({ menu, misPlatos, profile, onClose, onSaved }) {
+function MenuEditor({ menu, misPlatos, profile, hogar, onClose, onSaved }) {
   const [fechaInicio, setFechaInicio] = useState(menu?.fecha_inicio || proximoLunes());
   const [comensales, setComensales] = useState(menu?.comensales ?? 1);
   const [dias, setDias] = useState(menu?.dias || {});
@@ -1589,7 +1989,7 @@ function MenuEditor({ menu, misPlatos, profile, onClose, onSaved }) {
 
       const { error } = menu
         ? await supabase.from("menu_semanal").update(payload).eq("id", menu.id)
-        : await supabase.from("menu_semanal").insert({ ...payload, user_id: userId });
+        : await supabase.from("menu_semanal").insert({ ...payload, user_id: userId, hogar_id: hogar?.id ?? null });
 
       if (error) {
         setError(error.message);
@@ -1691,12 +2091,49 @@ function MenuEditor({ menu, misPlatos, profile, onClose, onSaved }) {
   );
 }
 
-function MenuSection({ session, profile, onProfileUpdated }) {
+function ChecklistComidas({ menu, platosPorId, ajustando, onToggle }) {
+  const dias = DIAS_SEMANA.filter((dia) => menu.dias?.[dia] && Object.keys(menu.dias[dia]).length);
+  if (dias.length === 0) return null;
+
+  return (
+    <div className="checklist-comidas">
+      {dias.map((dia) =>
+        ["comida", "cena"].map((turno) => {
+          const platoId = menu.dias[dia][turno];
+          if (!platoId) return null;
+          const plato = platosPorId[platoId];
+          const hecho = !!menu.comidas_hechas?.[dia]?.[turno]?.hecho;
+          const claveEstado = `${menu.id}_${dia}_${turno}`;
+          const procesando = ajustando.has(claveEstado);
+          return (
+            <label className={`checklist-item ${hecho ? "hecho" : ""}`} key={claveEstado}>
+              <input
+                type="checkbox"
+                className="checkbox"
+                checked={hecho}
+                disabled={procesando || !plato}
+                onChange={() => onToggle(menu, dia, turno)}
+              />
+              <span>
+                {dia.charAt(0).toUpperCase() + dia.slice(1)} — {turno === "comida" ? "Comida" : "Cena"}:{" "}
+                {plato?.nombre || "plato eliminado"}
+              </span>
+            </label>
+          );
+        })
+      )}
+    </div>
+  );
+}
+
+function MenuSection({ session, profile, hogar }) {
   const [menus, setMenus] = useState([]);
   const [misPlatos, setMisPlatos] = useState([]);
+  const [platosPorId, setPlatosPorId] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [editing, setEditing] = useState(null); // null=cerrado, {}=nuevo, menu=editar
+  const [ajustando, setAjustando] = useState(new Set());
 
   async function load() {
     setLoading(true);
@@ -1710,8 +2147,25 @@ function MenuSection({ session, profile, onProfileUpdated }) {
         .order("nombre"),
     ]);
     if (menusRes.error) setError(menusRes.error.message);
-    setMenus(menusRes.data || []);
+    const menusData = menusRes.data || [];
+    setMenus(menusData);
     setMisPlatos(platosRes.data || []);
+
+    // Platos referenciados por cualquier menú (propio o del hogar), con
+    // ingredientes: hace falta para el checklist y para calcular cuánto
+    // restar de la despensa al marcar una comida como hecha.
+    const idsReferenciados = [
+      ...new Set(menusData.flatMap((m) => Object.values(m.dias || {}).flatMap((dia) => Object.values(dia)))),
+    ];
+    if (idsReferenciados.length) {
+      const { data: platosData } = await supabase
+        .from("platos")
+        .select("id, nombre, ingredientes, raciones_por_defecto")
+        .in("id", idsReferenciados);
+      setPlatosPorId(Object.fromEntries((platosData || []).map((p) => [p.id, p])));
+    } else {
+      setPlatosPorId({});
+    }
     setLoading(false);
   }
 
@@ -1733,11 +2187,131 @@ function MenuSection({ session, profile, onProfileUpdated }) {
     load();
   }
 
+  async function toggleComidaHecha(menu, dia, turno) {
+    const platoId = menu.dias?.[dia]?.[turno];
+    const plato = platosPorId[platoId];
+    if (!plato) return;
+
+    const claveEstado = `${menu.id}_${dia}_${turno}`;
+    const estadoActual = menu.comidas_hechas?.[dia]?.[turno];
+    const yaHecho = !!estadoActual?.hecho;
+
+    setAjustando((prev) => new Set(prev).add(claveEstado));
+    setError("");
+    try {
+      if (!yaHecho) {
+        const necesariasTotal = menu.comensales || 1;
+
+        // Primero se consumen raciones ya cocinadas (batch cooking) de este
+        // plato, empezando por las que caducan antes; solo lo que no cubran
+        // se resta de la despensa como ingredientes crudos.
+        const { data: lotesData, error: lotesError } = await supabase
+          .from("lotes_cocinados")
+          .select("id, raciones_restantes, fecha_caducidad_estimada, fecha_cocinado")
+          .eq("plato_id", platoId)
+          .gt("raciones_restantes", 0);
+        if (lotesError) throw lotesError;
+
+        const loteAjustes = [];
+        let restante = necesariasTotal;
+        for (const lote of ordenarLotesDisponibles(lotesData || [])) {
+          if (restante <= 0) break;
+          const tomado = Math.min(lote.raciones_restantes, restante);
+          if (tomado <= 0) continue;
+          const nuevaRestante = lote.raciones_restantes - tomado;
+          const { error: loteError } = await supabase
+            .from("lotes_cocinados")
+            .update({ raciones_restantes: nuevaRestante })
+            .eq("id", lote.id);
+          if (loteError) throw loteError;
+          loteAjustes.push({ lote_id: lote.id, cantidad: tomado });
+          restante -= tomado;
+        }
+
+        const ajustes = [];
+        if (restante > 0) {
+          const { data: despensaData, error: despensaError } = await supabase
+            .from("despensa")
+            .select("id, ingrediente, cantidad, unidad");
+          if (despensaError) throw despensaError;
+
+          const necesarios = ingredientesNecesarios(plato, restante);
+          for (const nec of necesarios) {
+            const clave = normalizaClave(nec.nombre, nec.unidad);
+            const fila = (despensaData || []).find((d) => normalizaClave(d.ingrediente, d.unidad) === clave);
+            if (!fila) continue;
+            const restado = Math.min(fila.cantidad, nec.cantidad);
+            if (restado <= 0) continue;
+            const nuevaCantidad = Math.round((fila.cantidad - restado) * 100) / 100;
+            const { error: updError } = await supabase.from("despensa").update({ cantidad: nuevaCantidad }).eq("id", fila.id);
+            if (updError) throw updError;
+            ajustes.push({ despensa_id: fila.id, cantidad: restado });
+          }
+        }
+
+        const comidasHechas = { ...(menu.comidas_hechas || {}) };
+        comidasHechas[dia] = { ...(comidasHechas[dia] || {}), [turno]: { hecho: true, ajustes, loteAjustes } };
+        const { error: menuError } = await supabase
+          .from("menu_semanal")
+          .update({ comidas_hechas: comidasHechas })
+          .eq("id", menu.id);
+        if (menuError) throw menuError;
+      } else {
+        const ajustes = estadoActual.ajustes || [];
+        if (ajustes.length) {
+          const { data: despensaData, error: despensaError } = await supabase.from("despensa").select("id, cantidad");
+          if (despensaError) throw despensaError;
+          const despensaPorId = Object.fromEntries((despensaData || []).map((d) => [d.id, d]));
+          for (const ajuste of ajustes) {
+            const fila = despensaPorId[ajuste.despensa_id];
+            if (!fila) continue; // el ingrediente ya no existe: no hay a qué devolverlo
+            const nuevaCantidad = Math.round((fila.cantidad + ajuste.cantidad) * 100) / 100;
+            const { error: updError } = await supabase.from("despensa").update({ cantidad: nuevaCantidad }).eq("id", fila.id);
+            if (updError) throw updError;
+          }
+        }
+
+        const loteAjustes = estadoActual.loteAjustes || [];
+        if (loteAjustes.length) {
+          const { data: lotesData, error: lotesError } = await supabase.from("lotes_cocinados").select("id, raciones_restantes");
+          if (lotesError) throw lotesError;
+          const lotesPorId = Object.fromEntries((lotesData || []).map((l) => [l.id, l]));
+          for (const ajuste of loteAjustes) {
+            const lote = lotesPorId[ajuste.lote_id];
+            if (!lote) continue; // el lote ya no existe: no hay a qué devolverlo
+            const { error: updError } = await supabase
+              .from("lotes_cocinados")
+              .update({ raciones_restantes: lote.raciones_restantes + ajuste.cantidad })
+              .eq("id", lote.id);
+            if (updError) throw updError;
+          }
+        }
+
+        const comidasHechas = { ...(menu.comidas_hechas || {}) };
+        comidasHechas[dia] = { ...(comidasHechas[dia] || {}) };
+        delete comidasHechas[dia][turno];
+        if (Object.keys(comidasHechas[dia]).length === 0) delete comidasHechas[dia];
+        const { error: menuError } = await supabase
+          .from("menu_semanal")
+          .update({ comidas_hechas: comidasHechas })
+          .eq("id", menu.id);
+        if (menuError) throw menuError;
+      }
+      load();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setAjustando((prev) => {
+        const next = new Set(prev);
+        next.delete(claveEstado);
+        return next;
+      });
+    }
+  }
+
   return (
     <div>
       {error && <div className="auth-error">{error}</div>}
-
-      {profile && <ObjetivosDiarios profile={profile} onProfileUpdated={onProfileUpdated} />}
 
       <div className="toolbar" style={{ justifyContent: "flex-end" }}>
         <button className="btn btn-primary" onClick={() => setEditing({})}>
@@ -1752,17 +2326,20 @@ function MenuSection({ session, profile, onProfileUpdated }) {
       ) : (
         <div>
           {menus.map((menu) => (
-            <div className="list-row" key={menu.id}>
-              <div className="info">
-                <strong>Semana del {menu.fecha_inicio}</strong>{" "}
-                <span className="cantidad">
-                  — {menu.comensales} comensal(es), {contarComidasElegidas(menu)} comida(s) elegidas
-                </span>
+            <div key={menu.id}>
+              <div className="list-row">
+                <div className="info">
+                  <strong>Semana del {menu.fecha_inicio}</strong>{" "}
+                  <span className="cantidad">
+                    — {menu.comensales} comensal(es), {contarComidasElegidas(menu)} comida(s) elegidas
+                  </span>
+                </div>
+                <div className="actions">
+                  <button className="btn" onClick={() => setEditing(menu)}>Editar</button>
+                  <button className="btn btn-danger" onClick={() => handleDelete(menu)}>Eliminar</button>
+                </div>
               </div>
-              <div className="actions">
-                <button className="btn" onClick={() => setEditing(menu)}>Editar</button>
-                <button className="btn btn-danger" onClick={() => handleDelete(menu)}>Eliminar</button>
-              </div>
+              <ChecklistComidas menu={menu} platosPorId={platosPorId} ajustando={ajustando} onToggle={toggleComidaHecha} />
             </div>
           ))}
         </div>
@@ -1773,6 +2350,7 @@ function MenuSection({ session, profile, onProfileUpdated }) {
           menu={editing.id ? editing : null}
           misPlatos={misPlatos}
           profile={profile}
+          hogar={hogar}
           onClose={() => setEditing(null)}
           onSaved={() => {
             setEditing(null);
@@ -1784,7 +2362,7 @@ function MenuSection({ session, profile, onProfileUpdated }) {
   );
 }
 
-function ItemManualForm({ onClose, onSaved }) {
+function ItemManualForm({ hogar, onClose, onSaved }) {
   const [ingrediente, setIngrediente] = useState("");
   const [cantidad, setCantidad] = useState("");
   const [unidad, setUnidad] = useState("");
@@ -1800,6 +2378,7 @@ function ItemManualForm({ onClose, onSaved }) {
       const userId = sessionData.session.user.id;
       const { error } = await supabase.from("lista_compra").insert({
         user_id: userId,
+        hogar_id: hogar?.id ?? null,
         ingrediente: ingrediente.trim(),
         cantidad: Number(cantidad) || 1,
         unidad: unidad.trim(),
@@ -1848,7 +2427,29 @@ function normalizaClave(nombre, unidad) {
   return `${(nombre || "").trim().toLowerCase()}|${(unidad || "").trim().toLowerCase()}`;
 }
 
-function CompraSection({ session }) {
+function ordenarLotesDisponibles(lotes) {
+  return [...lotes]
+    .filter((l) => l.raciones_restantes > 0)
+    .sort((a, b) => {
+      const ca = a.fecha_caducidad_estimada || "9999-12-31";
+      const cb = b.fecha_caducidad_estimada || "9999-12-31";
+      if (ca !== cb) return ca < cb ? -1 : 1;
+      return (a.fecha_cocinado || "").localeCompare(b.fecha_cocinado || "");
+    });
+}
+
+function ingredientesNecesarios(plato, comensales) {
+  const factor = (comensales || 1) / (plato.raciones_por_defecto || 1);
+  return (plato.ingredientes || [])
+    .filter((ing) => ing.nombre)
+    .map((ing) => {
+      const cantidadBase = Number(ing.cantidad);
+      const base = Number.isFinite(cantidadBase) && cantidadBase > 0 ? cantidadBase : 1;
+      return { nombre: ing.nombre, unidad: ing.unidad || "", cantidad: base * factor };
+    });
+}
+
+function CompraSection({ session, hogar }) {
   const [items, setItems] = useState([]);
   const [menus, setMenus] = useState([]);
   const [selectedMenuId, setSelectedMenuId] = useState("");
@@ -1893,24 +2494,45 @@ function CompraSection({ session }) {
         return;
       }
 
-      const [platosRes, despensaRes] = await Promise.all([
+      const [platosRes, despensaRes, lotesRes] = await Promise.all([
         supabase.from("platos").select("id, ingredientes, raciones_por_defecto").in("id", platoIds),
         supabase.from("despensa").select("ingrediente, cantidad, unidad"),
+        supabase.from("lotes_cocinados").select("plato_id, raciones_restantes").in("plato_id", platoIds).gt("raciones_restantes", 0),
       ]);
       if (platosRes.error) throw platosRes.error;
       if (despensaRes.error) throw despensaRes.error;
+      if (lotesRes.error) throw lotesRes.error;
 
       const platosPorId = Object.fromEntries((platosRes.data || []).map((p) => [p.id, p]));
       const despensaPorClave = Object.fromEntries(
         (despensaRes.data || []).map((d) => [normalizaClave(d.ingrediente, d.unidad), d.cantidad])
       );
 
+      // Raciones ya cocinadas (batch cooking) disponibles por plato, para no
+      // pedir ingredientes de comidas que ya están cubiertas por un lote.
+      // Se van consumiendo del "pool" a medida que el plato aparece varias
+      // veces en la semana.
+      const lotesDisponiblesPorPlato = {};
+      for (const l of lotesRes.data || []) {
+        lotesDisponiblesPorPlato[l.plato_id] = (lotesDisponiblesPorPlato[l.plato_id] || 0) + l.raciones_restantes;
+      }
+
       const necesarios = new Map(); // clave -> { nombre, unidad, cantidad }
-      for (const dia of Object.values(menu.dias || {})) {
-        for (const platoId of Object.values(dia)) {
+      for (const dia of DIAS_SEMANA) {
+        const turnos = menu.dias?.[dia];
+        if (!turnos) continue;
+        for (const platoId of Object.values(turnos)) {
           const plato = platosPorId[platoId];
           if (!plato) continue;
-          const factor = (menu.comensales || 1) / (plato.raciones_por_defecto || 1);
+
+          const necesarias = menu.comensales || 1;
+          const disponibleLote = lotesDisponiblesPorPlato[platoId] || 0;
+          const cubiertoPorLote = Math.min(disponibleLote, necesarias);
+          lotesDisponiblesPorPlato[platoId] = disponibleLote - cubiertoPorLote;
+          const comensalesEfectivos = necesarias - cubiertoPorLote;
+          if (comensalesEfectivos <= 0) continue;
+
+          const factor = comensalesEfectivos / (plato.raciones_por_defecto || 1);
           for (const ing of plato.ingredientes || []) {
             if (!ing.nombre) continue;
             const clave = normalizaClave(ing.nombre, ing.unidad);
@@ -1931,6 +2553,7 @@ function CompraSection({ session }) {
         if (restante > 0) {
           nuevosItems.push({
             user_id: session.user.id,
+            hogar_id: hogar?.id ?? null,
             menu_id: selectedMenuId,
             ingrediente: item.nombre,
             cantidad: restante,
@@ -2013,6 +2636,9 @@ function CompraSection({ session }) {
                   />{" "}
                   {item.unidad}
                 </span>
+                {hogar && (
+                  <div className="autor-item">de {hogar.nombrePorUserId[item.user_id] || "alguien"}</div>
+                )}
               </div>
               <div className="actions">
                 <button className="btn btn-danger" onClick={() => eliminar(item)}>Eliminar</button>
@@ -2024,6 +2650,7 @@ function CompraSection({ session }) {
 
       {addingManual && (
         <ItemManualForm
+          hogar={hogar}
           onClose={() => setAddingManual(false)}
           onSaved={() => {
             setAddingManual(false);
@@ -2042,10 +2669,150 @@ const SECTION_COMPONENTS = {
   compra: CompraSection,
 };
 
+function HogarPanel({ hogar, onHogarUpdated }) {
+  const [nombreHogar, setNombreHogar] = useState("");
+  const [codigo, setCodigo] = useState("");
+  const [codigoGenerado, setCodigoGenerado] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function crear(e) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    const { error } = await supabase.rpc("crear_hogar", { p_nombre: nombreHogar.trim() });
+    if (error) setError(error.message);
+    else {
+      setNombreHogar("");
+      onHogarUpdated();
+    }
+    setLoading(false);
+  }
+
+  async function unirse(e) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    const { error } = await supabase.rpc("unirse_a_hogar_con_codigo", { p_codigo: codigo.trim() });
+    if (error) setError(error.message);
+    else {
+      setCodigo("");
+      onHogarUpdated();
+    }
+    setLoading(false);
+  }
+
+  async function generarInvitacion() {
+    setError("");
+    const { data, error } = await supabase.rpc("crear_invitacion_hogar", { p_hogar_id: hogar.id });
+    if (error) setError(error.message);
+    else setCodigoGenerado(data);
+  }
+
+  async function salir() {
+    if (!confirm(`¿Salir del hogar "${hogar.nombre}"? Dejarás de ver la despensa, el menú y la lista compartidos.`)) return;
+    const { data: sessionData } = await supabase.auth.getSession();
+    const { error } = await supabase
+      .from("hogar_miembros")
+      .delete()
+      .eq("hogar_id", hogar.id)
+      .eq("user_id", sessionData.session.user.id);
+    if (error) setError(error.message);
+    else onHogarUpdated();
+  }
+
+  if (hogar === undefined) {
+    return <p className="hint">Cargando…</p>;
+  }
+
+  if (!hogar) {
+    return (
+      <div>
+        {error && <div className="auth-error">{error}</div>}
+        <form className="hogar-form" onSubmit={crear}>
+          <input
+            placeholder="Nombre del hogar"
+            value={nombreHogar}
+            onChange={(e) => setNombreHogar(e.target.value)}
+            required
+            minLength={2}
+          />
+          <button className="btn btn-primary" type="submit" disabled={loading}>Crear</button>
+        </form>
+        <form className="hogar-form" onSubmit={unirse}>
+          <input
+            placeholder="Código de invitación"
+            value={codigo}
+            onChange={(e) => setCodigo(e.target.value.toUpperCase())}
+            required
+          />
+          <button className="btn" type="submit" disabled={loading}>Unirme</button>
+        </form>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {error && <div className="auth-error">{error}</div>}
+      <div className="perfil-nombre">{hogar.nombre}</div>
+      {hogar.miembros.map((m) => (
+        <div className="hogar-miembro" key={m.user_id}>
+          <span>{hogar.nombrePorUserId[m.user_id]}</span>
+          <span className="rol">{m.rol}</span>
+        </div>
+      ))}
+      {codigoGenerado && <div className="hogar-codigo">{codigoGenerado}</div>}
+      <button className="btn" onClick={generarInvitacion}>Generar código de invitación</button>
+      <button className="btn btn-danger" style={{ marginTop: "0.5rem" }} onClick={salir}>Salir del hogar</button>
+    </div>
+  );
+}
+
+function PerfilMenu({ session, profile, onProfileUpdated, hogar, onHogarUpdated }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    function onClickOutside(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
+
+  const inicial = (profile?.nombre || session.user.email || "?").charAt(0).toUpperCase();
+
+  return (
+    <div className="perfil-menu" ref={ref}>
+      <button className="perfil-trigger" onClick={() => setOpen((v) => !v)}>
+        <span className="perfil-avatar">{inicial}</span>
+        {profile?.nombre || session.user.email}
+      </button>
+      {open && (
+        <div className="perfil-panel">
+          <div className="perfil-nombre">{profile?.nombre}</div>
+          <div className="perfil-email">{session.user.email}</div>
+
+          <ObjetivosDiarios profile={profile} onProfileUpdated={onProfileUpdated} />
+
+          <h4>Mi hogar</h4>
+          <HogarPanel hogar={hogar} onHogarUpdated={onHogarUpdated} />
+
+          <button className="btn btn-danger" style={{ marginTop: "1rem" }} onClick={() => supabase.auth.signOut()}>
+            Salir
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function App() {
   const [section, setSection] = useState(seccionGuardada);
   const [session, setSession] = useState(undefined); // undefined = cargando, null = sin sesión
   const [profile, setProfile] = useState(undefined); // undefined = sin comprobar, null = falta crear
+  const [hogar, setHogar] = useState(undefined); // undefined = sin comprobar, null = sin hogar
   const Section = SECTION_COMPONENTS[section];
 
   useEffect(() => {
@@ -2061,9 +2828,44 @@ function App() {
     const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession);
       setProfile(undefined);
+      setHogar(undefined);
     });
     return () => listener.subscription.unsubscribe();
   }, []);
+
+  async function cargarHogar() {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const userId = sessionData?.session?.user?.id;
+    if (!userId) return;
+    const { data: miMiembro } = await supabase
+      .from("hogar_miembros")
+      .select("hogar_id, rol, hogares(nombre)")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (!miMiembro) {
+      setHogar(null);
+      return;
+    }
+    const { data: miembros } = await supabase
+      .from("hogar_miembros")
+      .select("user_id, rol, perfiles(nombre)")
+      .eq("hogar_id", miMiembro.hogar_id);
+    const nombrePorUserId = Object.fromEntries(
+      (miembros || []).map((m) => [m.user_id, m.perfiles?.nombre || "alguien"])
+    );
+    setHogar({
+      id: miMiembro.hogar_id,
+      nombre: miMiembro.hogares?.nombre,
+      miRol: miMiembro.rol,
+      miembros: miembros || [],
+      nombrePorUserId,
+    });
+  }
+
+  useEffect(() => {
+    if (!profile) return;
+    cargarHogar();
+  }, [profile]);
 
   useEffect(() => {
     if (!session) return;
@@ -2115,10 +2917,13 @@ function App() {
         <div className="user-bar">
           <h1>Comidas</h1>
           {session && (
-            <div>
-              <span>{profile?.nombre || session.user.email}</span>{" "}
-              <button onClick={() => supabase.auth.signOut()}>Salir</button>
-            </div>
+            <PerfilMenu
+              session={session}
+              profile={profile}
+              onProfileUpdated={setProfile}
+              hogar={hogar}
+              onHogarUpdated={cargarHogar}
+            />
           )}
         </div>
       </header>
@@ -2136,7 +2941,7 @@ function App() {
       </nav>
       <main>
         <SupabaseBanner />
-        <Section session={session} profile={profile} onProfileUpdated={setProfile} />
+        <Section session={session} profile={profile} onProfileUpdated={setProfile} hogar={hogar} />
       </main>
     </React.Fragment>
   );
