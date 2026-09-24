@@ -26,4 +26,7 @@ El usuario cocina varias raciones de un plato de una vez (ej. 4 raciones de lent
 - **Marcar comida hecha** (menú semanal, ver Fase 1 en `sprint.md`): mismo disparador que descuenta despensa. Al marcar, primero se consumen raciones de lote (las que caducan antes, luego las más antiguas), y solo el resto se resta de la despensa. Se guarda `loteAjustes` (qué lote y cuánta cantidad) junto a `ajustes` de despensa en `comidas_hechas`, para poder desmarcar y devolver exactamente esas raciones.
 
 ## Notas técnicas
+
+- **Fotos de platos**: bucket de Supabase Storage `fotos-platos` (público de lectura), un archivo por foto en `<user_id>/<uuid>.<ext>`. Subida/actualización/borrado restringidos al propietario del archivo vía RLS de `storage.objects`. Ver `supabase/migration_011_foto_receta_plato.sql`.
+
 _Añadir aquí decisiones de arquitectura relevantes a medida que se tomen (ver también docs/decisions.md)._

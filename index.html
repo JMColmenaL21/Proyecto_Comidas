@@ -451,6 +451,35 @@
     margin-bottom: 0.85rem;
     line-height: 1.4;
   }
+  .plato-card .foto {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.6rem;
+  }
+  .plato-card .receta {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+    white-space: pre-wrap;
+  }
+  .list-row .foto {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+  }
+  .foto-preview {
+    width: 100%;
+    max-width: 220px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    margin-top: 0.5rem;
+    display: block;
+  }
   .plato-card .actions {
     display: flex;
     gap: 0.5rem;
@@ -494,7 +523,8 @@
     margin: 0.85rem 0 0.3rem;
   }
   .plato-form input,
-  .plato-form select {
+  .plato-form select,
+  .plato-form textarea {
     width: 100%;
     box-sizing: border-box;
     padding: 0.6rem 0.75rem;
@@ -502,9 +532,15 @@
     border-radius: var(--radius-sm);
     font-size: 0.95rem;
     background: var(--bg);
+    font-family: inherit;
+  }
+  .plato-form textarea {
+    resize: vertical;
+    min-height: 70px;
   }
   .plato-form input:focus,
-  .plato-form select:focus {
+  .plato-form select:focus,
+  .plato-form textarea:focus {
     outline: 2px solid var(--accent);
     outline-offset: 1px;
     background: var(--surface);
@@ -1009,8 +1045,18 @@ function PlatoForm({ plato, onClose, onSaved }) {
   const [ingredientes, setIngredientes] = useState(
     plato?.ingredientes?.length ? plato.ingredientes : [emptyIngrediente()]
   );
+  const [recetaRapida, setRecetaRapida] = useState(plato?.receta_rapida || "");
+  const [fotoFile, setFotoFile] = useState(null);
+  const [fotoPreview, setFotoPreview] = useState(plato?.foto_url || "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  function handleFotoChange(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    setFotoFile(file);
+    setFotoPreview(URL.createObjectURL(file));
+  }
 
   function updateIngrediente(index, field, value) {
     setIngredientes((prev) =>
@@ -1033,6 +1079,25 @@ function PlatoForm({ plato, onClose, onSaved }) {
     try {
       const { data: sessionData } = await supabase.auth.getSession();
       const userId = sessionData.session.user.id;
+
+      let fotoUrl = plato?.foto_url || null;
+      if (fotoFile) {
+        const ext = fotoFile.name.split(".").pop();
+        const path = `${userId}/${crypto.randomUUID()}.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from("fotos-platos")
+          .upload(path, fotoFile);
+        if (uploadError) {
+          setError(uploadError.message);
+          return;
+        }
+        fotoUrl = supabase.storage.from("fotos-platos").getPublicUrl(path).data.publicUrl;
+        if (plato?.foto_url) {
+          const oldPath = plato.foto_url.split("/fotos-platos/")[1];
+          if (oldPath) await supabase.storage.from("fotos-platos").remove([oldPath]);
+        }
+      }
+
       const payload = {
         nombre: nombre.trim(),
         calorias_racion: toNumberOrNull(caloriasRacion),
@@ -1042,6 +1107,8 @@ function PlatoForm({ plato, onClose, onSaved }) {
         raciones_por_defecto: Number(raciones) || 1,
         tipo_comida: tipoComida,
         ingredientes: ingredientes.filter((ing) => ing.nombre.trim() !== ""),
+        foto_url: fotoUrl,
+        receta_rapida: recetaRapida.trim() || null,
       };
 
       const { error } = plato
@@ -1072,6 +1139,10 @@ function PlatoForm({ plato, onClose, onSaved }) {
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
           />
+
+          <label htmlFor="plato-foto">Foto (opcional)</label>
+          <input id="plato-foto" type="file" accept="image/*" onChange={handleFotoChange} />
+          {fotoPreview && <img className="foto-preview" src={fotoPreview} alt="" />}
 
           <div className="field-row">
             <div>
@@ -1170,6 +1241,14 @@ function PlatoForm({ plato, onClose, onSaved }) {
             + Añadir ingrediente
           </button>
 
+          <label htmlFor="plato-receta">Receta rápida (opcional)</label>
+          <textarea
+            id="plato-receta"
+            placeholder="Pasos rápidos para prepararlo…"
+            value={recetaRapida}
+            onChange={(e) => setRecetaRapida(e.target.value)}
+          />
+
           <div className="modal-actions">
             <button type="button" className="btn" onClick={onClose}>
               Cancelar
@@ -1187,6 +1266,7 @@ function PlatoForm({ plato, onClose, onSaved }) {
 function PlatoCard({ plato, isMine, onEdit, onDelete, onSave, saved }) {
   return (
     <div className="plato-card">
+      {plato.foto_url && <img className="foto" src={plato.foto_url} alt="" />}
       <h3>{plato.nombre}</h3>
       <div className="autor">de {plato.perfiles?.nombre || "alguien"}</div>
       {plato.tipo_comida && plato.tipo_comida !== "ambas" && (
@@ -1196,6 +1276,7 @@ function PlatoCard({ plato, isMine, onEdit, onDelete, onSave, saved }) {
         {plato.calorias_racion != null && <div>{plato.calorias_racion} kcal/ración</div>}
         {plato.raciones_por_defecto && <div>{plato.raciones_por_defecto} ración(es) por defecto</div>}
       </div>
+      {plato.receta_rapida && <div className="receta">{plato.receta_rapida}</div>}
       <div className="actions">
         {isMine ? (
           <React.Fragment>
@@ -1230,14 +1311,17 @@ function guardarValor(clave, valor) {
 function PlatoListRow({ plato, isMine, onEdit, onDelete, onSave, saved }) {
   return (
     <div className="list-row">
-      <div className="info">
-        <strong>{plato.nombre}</strong>{" "}
-        <span className="cantidad">— de {plato.perfiles?.nombre || "alguien"}</span>
-        {plato.tipo_comida && plato.tipo_comida !== "ambas" && (
-          <span className="tag" style={{ marginLeft: "0.5rem", marginBottom: 0 }}>
-            {plato.tipo_comida === "comida" ? "Solo comida" : "Solo cena"}
-          </span>
-        )}
+      <div className="info" style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+        {plato.foto_url && <img className="foto" src={plato.foto_url} alt="" />}
+        <div>
+          <strong>{plato.nombre}</strong>{" "}
+          <span className="cantidad">— de {plato.perfiles?.nombre || "alguien"}</span>
+          {plato.tipo_comida && plato.tipo_comida !== "ambas" && (
+            <span className="tag" style={{ marginLeft: "0.5rem", marginBottom: 0 }}>
+              {plato.tipo_comida === "comida" ? "Solo comida" : "Solo cena"}
+            </span>
+          )}
+        </div>
       </div>
       <div className="actions">
         {isMine ? (
@@ -1298,6 +1382,10 @@ function PlatosSection({ session }) {
       setError(error.message);
       return;
     }
+    if (plato.foto_url) {
+      const path = plato.foto_url.split("/fotos-platos/")[1];
+      if (path) await supabase.storage.from("fotos-platos").remove([path]);
+    }
     load();
   }
 
@@ -1312,6 +1400,8 @@ function PlatosSection({ session }) {
       grasas_g: plato.grasas_g,
       raciones_por_defecto: plato.raciones_por_defecto,
       origen_plato_id: plato.id,
+      foto_url: plato.foto_url,
+      receta_rapida: plato.receta_rapida,
     });
     if (error) {
       setError(error.message);
