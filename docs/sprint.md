@@ -3,6 +3,11 @@
 ## Estado
 En curso.
 
+## Siguiente al retomar (hacer esto primero)
+- [ ] Probar en el navegador (local o refrescando la web) que la fila de ingredientes del formulario de plato se ve bien: se arregló un CSS (`.ingredient-row select`) que se rompió al cambiar la unidad de texto libre a desplegable — ver "Unidades e ingredientes estandarizados" más abajo. Cambio commiteado en local, **sin pushear** hasta confirmar.
+- [ ] Si se ve bien: `git push`. Si no: seguir ajustando antes de pushear.
+- [ ] Borrar en Supabase → Authentication → Users el usuario de prueba sin confirmar `playground-test-foodganizer+...@example.com` (creado al intentar una prueba automática end-to-end, quedó sin confirmar por email).
+
 ## Objetivo del sprint
 Tener la app navegable localmente (HTML único + React) con las secciones base, lista para conectar Supabase en cuanto exista la cuenta.
 
@@ -25,10 +30,18 @@ Prototipo con las 4 secciones funcionales listo para probar de extremo a extremo
 - [x] Fase 2: batch cooking compartido — subtab "Platos preparados" en Despensa (CRUD de lotes), `lotes_cocinados` con `hogar_id`, checklist del menú consume primero lotes disponibles (antes que despensa) y la generación de lista de la compra resta la cobertura de lotes antes de calcular ingredientes. Migración `supabase/migration_009_lotes_cocinados_hogar.sql` ejecutada
 
 ## Foto + receta rápida en platos
-- [x] Migración `supabase/migration_011_foto_receta_plato.sql` (columnas `foto_url`/`receta_rapida` + bucket `fotos-platos` con políticas RLS) — **pendiente ejecutar en Supabase SQL Editor**
+- [x] Migración `supabase/migration_011_foto_receta_plato.sql` (columnas `foto_url`/`receta_rapida` + bucket `fotos-platos` con políticas RLS) — ejecutada en Supabase SQL Editor
 - [x] Subida de foto y receta rápida en `PlatoForm`, con preview y borrado del archivo viejo al reemplazar
 - [x] Mostrar foto y receta en `PlatoCard` (tarjetas) y `PlatoListRow` (lista)
 - [x] Borrar el archivo del bucket al eliminar un plato; copiar foto/receta al "guardar en mis platos"
+- [ ] Probar manualmente el flujo completo (subir foto + receta a un plato real) — pendiente, ver "Siguiente al retomar"
+
+## Unidades e ingredientes estandarizados
+- [x] Unidades cerradas a desplegable (g/kg/ml/l/ud/cucharada/cucharadita/pizca); kg/l se convierten a g/ml al guardar
+- [x] Nombres de ingrediente normalizados (trim + capitalización) + diccionario de alias (`ALIAS_INGREDIENTES`) para variantes de plural/mayúsculas
+- [x] Cantidades redondeadas a 2 decimales; presentación agrupada en kg/l cuando el valor es grande
+- [x] Migración `supabase/migration_012_normalizar_unidades.sql` (despensa, lista de la compra, ingredientes de platos) — ejecutada
+- [ ] Fix de CSS (`.ingredient-row select`) tras probarlo — ver "Siguiente al retomar", pendiente de confirmar visualmente y pushear
 
 ## Despliegue
 App publicada en GitHub Pages: https://jmcolmenal21.github.io/Proyecto_Comidas/ (repo público `JMColmenaL21/Proyecto_Comidas`, deploy automático con cada `git push` a `main`). PWA instalable desde el móvil ("Añadir a pantalla de inicio").
