@@ -28,5 +28,6 @@ El usuario cocina varias raciones de un plato de una vez (ej. 4 raciones de lent
 ## Notas técnicas
 
 - **Fotos de platos**: bucket de Supabase Storage `fotos-platos` (público de lectura), un archivo por foto en `<user_id>/<uuid>.<ext>`. Subida/actualización/borrado restringidos al propietario del archivo vía RLS de `storage.objects`. Ver `supabase/migration_011_foto_receta_plato.sql`.
+- **Unidades e ingredientes**: `unidad` se guarda siempre en una unidad base fija (`g`, `ml`, `ud`, `cucharada`, `cucharadita`, `pizca`) — kg/l se convierten a g/ml al guardar. Excepción: "añadir a mano" en lista de la compra sigue con unidad libre. Nombres de ingrediente se normalizan (trim + capitalización) y pasan por un pequeño diccionario de alias (`ALIAS_INGREDIENTES`) para variantes de plural/mayúsculas comunes. Ver `docs/decisions.md` (2026-09-25) y `supabase/migration_012_normalizar_unidades.sql`.
 
 _Añadir aquí decisiones de arquitectura relevantes a medida que se tomen (ver también docs/decisions.md)._
