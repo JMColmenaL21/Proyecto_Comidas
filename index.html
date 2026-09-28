@@ -547,15 +547,19 @@
   }
   .ingredient-row {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
     align-items: center;
     margin-bottom: 0.5rem;
   }
-  .ingredient-row input {
+  .ingredient-row input:nth-child(1) {
+    flex: 1 1 100%;
+  }
+  .ingredient-row input:nth-child(2) {
     flex: 1;
   }
   .ingredient-row select {
-    flex: 1;
+    flex: 1.6;
     min-width: 0;
   }
   .ingredient-row button {
