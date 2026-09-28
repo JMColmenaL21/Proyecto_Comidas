@@ -516,6 +516,12 @@
   .field-row > div {
     flex: 1;
   }
+  .field-row:has(select#unidad) > div:first-child {
+    flex: 0.8;
+  }
+  .field-row:has(select#unidad) > div:last-child {
+    flex: 1.5;
+  }
   .plato-form label {
     display: block;
     font-size: 0.85rem;
